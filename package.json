@@ -1,0 +1,13 @@
+{
+  "name": "defacto-cafe-menu",
+  "version": "1.0.0",
+  "private": true,
+  "description": "DeFacto Cafe - menu, admin panel and kitchen orders (single Node server, no dependencies).",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

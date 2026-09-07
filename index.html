@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DeFacto Cafe</title>
+
+<!-- الخطوط: تُحمَّل من Google Fonts، أسهل بكتير للتعديل من الخطوط المدمجة -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800&display=swap" rel="stylesheet">
+
+<style>
+  /* ── الألوان والمقاسات — عدّل هون لو بدك تغيّر هوية المقهى ── */
+  :root {
+    --color-bg: #f3f2f2;
+    --color-surface: #eae9e9;
+    --color-text: #201f1d;
+    --color-dark: #1a1918;
+    --color-accent: #9199a1;      /* الفضي الأساسي */
+    --color-accent-light: #c9ced2; /* الفضي الفاتح */
+    --color-accent-dark: #5c6167;  /* الفضي الغامق (نصوص) */
+    --color-divider: rgba(32,31,29,.16);
+    --color-divider-soft: rgba(32,31,29,.08);
+    --color-muted: #7d7979;
+    --color-sub: #605d5d;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: "Tajawal", Tahoma, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  a { color: var(--color-accent-dark); text-decoration: none; }
+  a:hover { color: var(--color-accent); }
+  ::selection { background: var(--color-accent-light); }
+  button { font: inherit; }
+
+  /* غلاف عام يمركز المحتوى بعرض أقصى معقول مع هوامش تتمدد على الشاشات الواسعة،
+     بينما الهيدر وشريط البحث يمدّوا خلفيتهم لحافة الصفحة بالكامل. */
+  .container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding-inline: clamp(20px, 4vw, 64px);
+  }
+
+  /* ── الهيدر (يمتد حافة إلى حافة) ── */
+  .header {
+    position: relative;
+    background: #ffffff;
+    color: var(--color-text);
+    border-bottom: 1px solid var(--color-divider);
+    overflow: hidden;
+  }
+  .header-inner {
+    position: relative;
+    padding-block: clamp(36px, 6vw, 64px);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  .logo { display: flex; flex-direction: column; line-height: 1; gap: 10px; }
+  .logo-img { height: clamp(56px, 8vw, 92px); width: auto; display: block; }
+  .lang-btn {
+    font-family: "Tajawal", sans-serif; font-size: 12px; letter-spacing: .14em;
+    padding: 8px 16px; background: transparent; border: 1px solid var(--color-accent-dark);
+    color: var(--color-accent-dark); border-radius: 2px; cursor: pointer; flex: none;
+  }
+  .lang-btn:hover { background: color-mix(in srgb, var(--color-accent) 12%, transparent); }
+  .tagline { margin: 0; font-size: 14px; line-height: 1.9; color: #000000; text-align: start; max-width: 420px; text-wrap: pretty; }
+
+  /* ── شريط البحث (يمتد حافة إلى حافة) ── */
+  .search-bar {
+    position: sticky; top: 0; z-index: 5;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-divider);
+  }
+  .search-bar .container { padding-block: 16px; }
+  .search-bar-row { display: flex; align-items: center; gap: 16px; }
+  .search-wrap { max-width: 480px; flex: 1; }
+  .search-input {
+    width: 100%; font-family: "Tajawal", sans-serif; font-size: 14px;
+    padding: 9px 2px; background: transparent; border: 0;
+    border-bottom: 1px solid rgba(32,31,29,.28); color: var(--color-text);
+  }
+  .search-input:focus { outline: none; border-bottom-color: var(--color-accent); }
+  .search-input::placeholder { color: var(--color-muted); }
+  .table-badge {
+    flex: none; font-size: 12px; font-weight: 700; padding: 6px 14px;
+    border-radius: 999px; background: #c0392b; color: #fff; white-space: nowrap;
+  }
+
+  /* ── أزرار الطلب: أي مكان قابل للنقر يرسل طلب فوري للمطبخ ── */
+  .order-btn {
+    font: inherit; cursor: pointer; border: 1px solid #c0392b; background: #fff5f4;
+    color: #96281d; transition: background .15s, transform .1s;
+  }
+  .order-btn:hover { background: #c0392b; color: #fff; }
+  .order-btn:active { transform: scale(.96); }
+  .order-btn:disabled { opacity: .55; cursor: default; transform: none; }
+
+  #toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: #201f1d; color: #fff; padding: 12px 20px; border-radius: 8px;
+    font-size: 13.5px; max-width: 90vw; text-align: center; z-index: 50;
+    opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s;
+    box-shadow: 0 8px 24px rgba(0,0,0,.2);
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #toast.toast-error { background: #c0392b; }
+
+  /* ── شريط تنبيه تحديث القائمة: يظهر بس لما يفشل جلب آخر نسخة، بدون ما يخبي القائمة الظاهرة ── */
+  .data-banner {
+    display: flex; align-items: center; gap: 12px;
+    background: #fff5f4; border-bottom: 1px solid rgba(192,57,43,.25);
+    padding: 12px clamp(20px, 4vw, 64px);
+    color: #96281d; font-size: 12.5px; line-height: 1.6;
+  }
+  .data-banner svg { flex: none; }
+  .data-banner-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .data-banner-text strong { font-family: "Tajawal", sans-serif; font-size: 13px; font-weight: 700; color: #96281d; }
+  .data-banner-retry {
+    flex: none; font-family: "Tajawal", sans-serif; font-size: 12px; font-weight: 700;
+    padding: 7px 16px; border-radius: 999px; border: 1px solid #c0392b; background: #fff;
+    color: #96281d; cursor: pointer;
+  }
+  .data-banner-retry:hover { background: #c0392b; color: #fff; }
+
+  /* ── نافذة تأكيد الطلب: بتوضح رقم الطاولة بشكل كبير وواضح ── */
+  .order-modal-backdrop {
+    position: fixed; inset: 0; z-index: 60; background: rgba(32,31,29,.55);
+    display: none; align-items: center; justify-content: center; padding: 20px;
+  }
+  .order-modal-backdrop.show { display: flex; }
+  .order-modal {
+    background: #fff; border-radius: 16px; padding: 32px 28px; width: 100%; max-width: 320px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,.25);
+    animation: order-modal-in .2s ease-out;
+  }
+  @keyframes order-modal-in {
+    from { transform: scale(.92); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .order-modal-check {
+    width: 48px; height: 48px; border-radius: 50%; background: #2e7d55; color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 24px; flex: none;
+  }
+  .order-modal-title { margin: 4px 0 0; font-size: 15px; font-weight: 700; color: var(--color-text); }
+  .order-modal-table {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    background: var(--color-surface); border-radius: 10px; padding: 10px 24px; margin: 4px 0;
+  }
+  .order-modal-table-label { font-size: 11px; color: var(--color-muted); letter-spacing: .06em; }
+  .order-modal-table-num { font-size: 40px; font-weight: 800; line-height: 1; color: #c0392b; }
+  .order-modal-item { margin: 0; font-size: 13.5px; color: var(--color-muted); }
+  .order-modal-note { margin: 0; font-size: 12px; color: #96281d; background: #fff5f4; padding: 6px 12px; border-radius: 6px; }
+  .order-modal-close {
+    margin-top: 10px; width: 100%; padding: 11px; border-radius: 8px; border: 0;
+    background: var(--color-text); color: #fff; font-family: "Tajawal", sans-serif; font-size: 14px; font-weight: 700;
+  }
+
+  /* ── محتوى القائمة: شبكة بطاقات متعددة الأعمدة تعبّي عرض الصفحة ── */
+  main.container { padding-block: 32px 56px; }
+  .menu-grid {
+    display: grid;
+    align-items: start;
+    gap: 24px;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 720px)  { .menu-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1180px) { .menu-grid { grid-template-columns: repeat(3, 1fr); } }
+
+  .section-card {
+    background: var(--color-bg);
+    border: 1px solid var(--color-divider);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(32,31,29,.05);
+    overflow: hidden;
+  }
+  .section-head {
+    width: 100%; display: flex; align-items: baseline; gap: 11px;
+    padding: 18px 20px; background: transparent; border: 0; cursor: pointer;
+    text-align: start; font-family: "Tajawal", sans-serif;
+  }
+  .section-num { font-family: "Tajawal", sans-serif; font-size: 10.5px; letter-spacing: .14em; color: var(--color-accent-dark); font-variant-numeric: tabular-nums; }
+  .section-label { font-family: "Tajawal", sans-serif; font-size: 16px; font-weight: 700; color: var(--color-text); line-height: 1.2; }
+  .section-rule { flex: 1; height: 1px; background: var(--color-divider); }
+  .section-count { font-size: 11.5px; color: var(--color-muted); white-space: nowrap; }
+  .section-mark { font-family: "Tajawal", sans-serif; font-size: 19px; color: var(--color-accent); width: 13px; text-align: center; }
+
+  .section-items { display: flex; flex-direction: column; padding-bottom: 6px; }
+  .item {
+    display: flex; gap: 14px; align-items: flex-start; padding: 14px 20px;
+    border-top: 1px solid var(--color-divider-soft);
+  }
+  .item-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+  .item-title-row { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; }
+  .item-title { font-family: "Tajawal", sans-serif; font-size: 19px; font-weight: 700; line-height: 1.3; }
+  .item-sub { font-family: "Tajawal", sans-serif; font-size: 12px; letter-spacing: .08em; color: var(--color-sub); }
+  .item-badge {
+    font-family: "Tajawal", sans-serif; font-size: 11px; padding: 2px 8px;
+    border: 1px solid var(--color-accent-light); color: var(--color-accent-dark);
+    border-radius: 2px; white-space: nowrap;
+  }
+  .item-desc { font-size: 12px; line-height: 1.7; color: var(--color-muted); text-wrap: pretty; }
+  .item-note-toggle {
+    margin-inline-start: auto; background: none; border: 0; font-size: 11px; color: var(--color-muted);
+    cursor: pointer; padding: 2px 4px; font-family: "Tajawal", sans-serif;
+  }
+  .item-note-toggle:hover { color: #c0392b; }
+  .item-note-row { margin-top: -2px; }
+  .item-note-input {
+    width: 100%; font-family: "Tajawal", sans-serif; font-size: 12.5px;
+    padding: 7px 10px; border: 1px solid var(--color-divider); border-radius: 6px;
+    background: var(--color-surface); color: var(--color-text);
+  }
+  .item-note-input:focus { outline: none; border-color: #c0392b; }
+  .item-sizes { display: flex; gap: 8px; flex-wrap: wrap; }
+  .size-pill {
+    display: flex; gap: 7px; align-items: baseline; font-size: 11.5px;
+    padding: 4px 11px; border: 1px solid rgba(32,31,29,.2); border-radius: 999px; color: #444141;
+  }
+  .size-price { font-family: "Tajawal", sans-serif; font-size: 12.5px; font-variant-numeric: tabular-nums; color: var(--color-text); }
+  .item-price {
+    display: inline-flex; align-self: flex-start; font-family: "Tajawal", sans-serif;
+    font-size: 12.5px; font-variant-numeric: tabular-nums; color: var(--color-text);
+    padding: 4px 14px; border: 1px solid rgba(32,31,29,.2); border-radius: 999px;
+  }
+  .item-thumb {
+    width: 76px; height: 76px; flex: none; border: 1px solid rgba(32,31,29,.18);
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+    background: var(--color-surface); border-radius: 6px;
+  }
+  .item-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .empty-state { padding: 70px 24px; text-align: center; font-size: 13.5px; color: var(--color-muted); }
+
+  /* ── الفوتر (يمتد حافة إلى حافة) — تصميم "كروت" بنفس أسلوب كروت المنيو ── */
+  .footer { background: var(--color-surface); color: var(--color-text); border-top: 1px solid var(--color-divider); }
+  .footer-top {
+    padding-block: 36px 22px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;
+  }
+  .footer-logo-img { height: 38px; width: auto; }
+  .footer-tagline { margin: 0; font-family: "Tajawal", sans-serif; font-size: 12px; color: var(--color-muted); }
+
+  .footer-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+    max-width: 900px; margin: 0 auto; padding-inline: 24px;
+  }
+  @media (max-width: 520px) { .footer-grid { grid-template-columns: 1fr; } }
+
+  .footer-card {
+    background: var(--color-bg); border: 1px solid var(--color-divider); border-radius: 10px;
+    padding: 16px; display: flex; flex-direction: column; gap: 22px;
+    box-shadow: 0 1px 3px rgba(32,31,29,.05);
+  }
+  .footer-card-group { display: flex; flex-direction: column; gap: 6px; }
+  .footer-card-social {
+    margin-top: 10px; width: 32px; height: 32px; border-radius: 50%;
+    background: var(--color-surface); border: 1px solid var(--color-divider);
+    display: flex; align-items: center; justify-content: center; color: var(--color-text);
+  }
+  .footer-card-social:hover { border-color: #c0392b; color: #c0392b; }
+  .footer-card-title {
+    font-family: "Tajawal", sans-serif; font-size: 10.5px; letter-spacing: .1em;
+    color: var(--color-muted); font-weight: 700;
+  }
+  .footer-card-title.spaced { margin-top: 8px; }
+  .footer-card p { margin: 0; font-family: "Tajawal", sans-serif; font-size: 13px; line-height: 1.6; color: var(--color-text); }
+
+  .footer-map {
+    position: relative;
+    width: 100%; aspect-ratio: 16 / 9; border-radius: 6px; overflow: hidden;
+    background: repeating-linear-gradient(45deg, #f0efef 0 4px, #e6e5e5 4px 8px);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .footer-map iframe {
+    width: 100%; height: 100%; border: 0; display: block;
+    filter: blur(1.5px) brightness(0.94) saturate(0.75);
+  }
+  .footer-map-marker {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: #fff; border-radius: 10px; padding: 8px 12px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.25);
+    display: flex; align-items: center; z-index: 2;
+  }
+  .footer-map-marker img { height: 22px; width: auto; display: block; }
+  .footer-map-link {
+    font-family: "Tajawal", sans-serif; font-size: 11.5px; color: var(--color-accent-dark);
+    text-align: center; text-decoration: none;
+  }
+  .footer-map-link:hover { text-decoration: underline; }
+
+  .footer-bottom {
+    padding-block: 4px 26px; display: flex; flex-direction: column; gap: 6px;
+    align-items: center; text-align: center;
+  }
+  .footer-credit {
+    display: inline-flex; align-items: center;
+    text-decoration: none; opacity: 0.75; transition: opacity 0.2s;
+  }
+  .footer-credit:hover { opacity: 1; }
+  .footer-credit-logo { height: 38px; width: auto; display: block; }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+<div id="toast"></div>
+
+<div id="orderModal" class="order-modal-backdrop">
+  <div class="order-modal">
+    <span class="order-modal-check">✓</span>
+    <p class="order-modal-title" id="orderModalTitle">تم إرسال طلبك</p>
+    <div class="order-modal-table">
+      <span class="order-modal-table-label" id="orderModalTableLabel">طاولة</span>
+      <span class="order-modal-table-num" id="orderModalTableNum"></span>
+    </div>
+    <p class="order-modal-item" id="orderModalItem"></p>
+    <p class="order-modal-note" id="orderModalNote" hidden></p>
+    <button type="button" class="order-modal-close" id="orderModalClose">تمام</button>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   بيانات القائمة — عدّل/أضف/احذف عناصر من هون مباشرة
+   ══════════════════════════════════════════════════════════════ */
+// نسخة احتياطية تُستخدم فقط إذا فتحتِ الملف مباشرة (file://) بدون سيرفر،
+// أو إذا فشل تحميل menu-data.json لأي سبب. أثناء التشغيل عبر server.js
+// البيانات الحقيقية تجي من menu-data.json وتقدري تعدّليها من admin.html
+// بدون لمس هالكود.
+let DATA = [
+  { id: 'hot', ar: 'قهوة ساخنة', en: 'Hot Coffee', img: 'hot-coffee.jpg', items: [
+    { ar: 'إسبريسو', en: 'Espresso', dAr: 'جرعة قهوة مركزة، تحميص غامق ورغوة كريمية.', dEn: 'A concentrated shot, dark roast with a rich crema.', best: true, sizes: [['سينغل','Single',12000],['دوبل','Double',16000]] },
+    { ar: 'أمريكانو', en: 'Americano', dAr: 'إسبريسو ممدود بالمي الساخن، طعم خفيف ومتوازن.', dEn: 'Espresso lengthened with hot water, light and balanced.', p: 15000 },
+    { ar: 'كابتشينو', en: 'Cappuccino', dAr: 'إسبريسو مع حليب مبخّر ورغوة كثيفة.', dEn: 'Espresso with steamed milk and a thick foam cap.', best: true, sizes: [['وسط','Medium',18000],['كبير','Large',22000]] },
+    { ar: 'لاتيه', en: 'Latte', dAr: 'قهوة ناعمة بحليب مبخّر وفن لاتيه.', dEn: 'Smooth coffee with steamed milk and latte art.', p: 20000 },
+    { ar: 'موكا', en: 'Mocha', dAr: 'لاتيه بلمسة شوكولا غنية.', dEn: 'Latte with a rich chocolate twist.', p: 24000 },
+    { ar: 'قهوة تركية', en: 'Turkish Coffee', dAr: 'قهوة تركية أصيلة، تُحضّر على الرمل.', dEn: 'Traditional Turkish coffee, sand-brewed.', p: 14000 }
+  ]},
+  { id: 'cold', ar: 'قهوة باردة', en: 'Cold Coffee', img: 'cold-coffee.jpg', items: [
+    { ar: 'آيس أمريكانو', en: 'Iced Americano', dAr: 'أمريكانو مثلّج، منعش وخفيف.', dEn: 'Chilled Americano, light and refreshing.', p: 18000 },
+    { ar: 'آيس لاتيه', en: 'Iced Latte', dAr: 'لاتيه بارد فوق الثلج مع حليب طازج.', dEn: 'Cold latte over ice with fresh milk.', best: true, sizes: [['وسط','Medium',22000],['كبير','Large',26000]] },
+    { ar: 'كولد برو', en: 'Cold Brew', dAr: 'قهوة منقوعة ببرودة لساعات، نعومة بدون حموضة.', dEn: 'Slow cold-steeped coffee, smooth and low-acid.', p: 26000 },
+    { ar: 'آيس موكا', en: 'Iced Mocha', dAr: 'موكا باردة بلمسة شوكولا وكريما.', dEn: 'Iced mocha with chocolate and cream.', p: 27000 },
+    { ar: 'أفوغاتو', en: 'Affogato', dAr: 'سكوب آيسكريم فانيلا مغروق بإسبريسو ساخن.', dEn: 'Vanilla ice cream drowned in a hot espresso shot.', p: 25000 }
+  ]},
+  { id: 'frappe', ar: 'مشروبات باردة', en: 'Frappé & Smoothies', img: 'frappe.jpg', items: [
+    { ar: 'فرابيه كراميل', en: 'Caramel Frappé', dAr: 'فرابيه مثلج بنكهة الكراميل الغنية.', dEn: 'Iced frappé with rich caramel flavor.', best: true, p: 28000 },
+    { ar: 'فرابيه نوتيلا', en: 'Nutella Frappé', dAr: 'فرابيه بطعم النوتيلا والبندق.', dEn: 'Frappé with Nutella and hazelnut flavor.', p: 32000 },
+    { ar: 'سموذي فراولة', en: 'Strawberry Smoothie', dAr: 'سموذي فراولة طازج وكريمي.', dEn: 'Fresh, creamy strawberry smoothie.', p: 26000 },
+    { ar: 'سموذي مانجا', en: 'Mango Smoothie', dAr: 'سموذي مانجا استوائي منعش.', dEn: 'Refreshing tropical mango smoothie.', p: 26000 },
+    { ar: 'ميلك شيك فانيلا', en: 'Vanilla Milkshake', dAr: 'ميلك شيك فانيلا كلاسيكي وكريمي.', dEn: 'Classic, creamy vanilla milkshake.', p: 24000 }
+  ]},
+  { id: 'juice', ar: 'عصائر طازجة', en: 'Fresh Juices', img: 'juice.jpg', items: [
+    { ar: 'برتقال', en: 'Orange', dAr: 'عصير برتقال طازج معصور بالطلب.', dEn: 'Fresh orange juice, squeezed to order.', p: 20000 },
+    { ar: 'ليمون بالنعنع', en: 'Lemon Mint', dAr: 'ليمون بالنعنع، منعش ومنعّم.', dEn: 'Lemon and mint, cool and refreshing.', best: true, p: 18000 },
+    { ar: 'كوكتيل فواكه', en: 'Fruit Cocktail', dAr: 'مزيج فواكه موسمية طازجة.', dEn: 'A blend of fresh seasonal fruits.', p: 30000 },
+    { ar: 'رمان', en: 'Pomegranate', dAr: 'عصير رمان طبيعي ١٠٠٪.', dEn: '100% natural pomegranate juice.', p: 28000 }
+  ]},
+  { id: 'tea', ar: 'شاي وأعشاب', en: 'Tea & Herbs', img: 'tea.jpg', items: [
+    { ar: 'شاي أسود', en: 'Black Tea', dAr: 'شاي أسود كلاسيكي.', dEn: 'Classic black tea.', p: 8000 },
+    { ar: 'شاي بالنعنع', en: 'Mint Tea', dAr: 'شاي بالنعنع الطازج.', dEn: 'Tea with fresh mint.', best: true, p: 11000 },
+    { ar: 'شاي أخضر', en: 'Green Tea', dAr: 'شاي أخضر خفيف ومنعش.', dEn: 'Light and refreshing green tea.', p: 10000 },
+    { ar: 'زهورات', en: 'Herbal Blend', dAr: 'مزيج زهورات وأعشاب طبيعية.', dEn: 'A natural blend of herbs and flowers.', p: 12000 },
+    { ar: 'يانسون', en: 'Anise', dAr: 'يانسون دافئ، مهدّئ للمعدة.', dEn: 'Warm anise, gentle on the stomach.', p: 10000 }
+  ]}
+];
+
+// أيقونة بديلة للشيشة (ما في صورة واقعية مناسبة إلها)
+const SHISHA_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="#5c6167" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="width:60%;height:60%">
+  <path d="M9 2v3M9 3.5h4"/>
+  <path d="M9 5c-2.5 1-3.5 3-2 5s.5 4-1.5 4.5"/>
+  <ellipse cx="9" cy="15.5" rx="6" ry="2.2"/>
+  <path d="M4.5 16v2.5c0 1.4 2 2.5 4.5 2.5s4.5-1.1 4.5-2.5V16"/>
+  <path d="M15 14c2 .3 3.5 1.6 3.5 3.2 0 1.8-2 3.3-4.5 3.3"/>
+  <circle cx="20" cy="19.5" r="1.3"/>
+</svg>`;
+
+/* ── إعدادات قابلة للتبديل ── */
+const SETTINGS = {
+  defaultLang: 'ar',       // 'ar' أو 'en'
+  showThumbs: true,        // إظهار مربع الصورة بجانب كل صنف
+  showBadges: true,        // إظهار شارة "الأكثر طلباً"
+  openFirstSection: true   // فتح أول قسم تلقائيًا
+};
+
+/* ── حالات فشل تحديث القائمة — القائمة المعروضة (نسخة احتياطية أو آخر نسخة ناجحة)
+   بتضل ظاهرة دايمًا، هاد بس شريط تنبيه فوقها لما يفشل جلب آخر تحديث ── */
+const ERROR_STATES = {
+  offline: {
+    ar: { title: 'ما في اتصال بالإنترنت', desc: 'القائمة يلي تحت هي آخر نسخة محفوظة عنا. وصليها بالإنترنت وبتنحدّث تلقائيًا.' },
+    en: { title: 'No internet connection', desc: "The menu below is the last saved version. Reconnect and it'll update automatically." }
+  },
+  timeout: {
+    ar: { title: 'الشبكة بطيئة شوي', desc: 'تأخر تحميل آخر تحديث للقائمة. القائمة تحت شغالة عادي، وبنحاول نجيب النسخة الجديدة تلقائيًا.' },
+    en: { title: 'Slow connection', desc: "The latest menu update is taking a while. The menu below still works — we'll keep trying in the background." }
+  },
+  server: {
+    ar: { title: 'تعذّر الوصول للسيرفر', desc: 'في مشكلة مؤقتة بجهة السيرفر. القائمة تحت هي آخر نسخة محفوظة، جربي تحدّثي بعد شوي.' },
+    en: { title: 'Server unavailable', desc: 'There is a temporary issue on our server. The menu below is the last saved version — try refreshing shortly.' }
+  },
+  notFound: {
+    ar: { title: 'ملف القائمة غير موجود', desc: 'تعذّر إيجاد بيانات القائمة المحدّثة. القائمة تحت هي النسخة الاحتياطية المدمجة بالموقع.' },
+    en: { title: 'Menu file not found', desc: "Couldn't find the updated menu data. The menu below is the built-in backup version." }
+  },
+  rateLimited: {
+    ar: { title: 'عدد كبير من الطلبات حالياً', desc: 'السيرفر مشغول لحظيًا. القائمة تحت شغالة، وبنعيد المحاولة تلقائيًا خلال لحظات.' },
+    en: { title: 'High traffic right now', desc: "The server is busy for a moment. The menu below still works — we'll retry automatically shortly." }
+  },
+  parse: {
+    ar: { title: 'بيانات القائمة غير مكتملة', desc: 'وصلت بيانات القائمة تالفة أو ناقصة. القائمة تحت هي آخر نسخة سليمة محفوظة عنا.' },
+    en: { title: 'Incomplete menu data', desc: 'The menu data we received was corrupted or incomplete. The menu below is the last known-good version.' }
+  },
+  error: {
+    ar: { title: 'تعذّر تحديث القائمة', desc: 'صار خطأ غير متوقع أثناء تحديث القائمة. القائمة تحت هي آخر نسخة محفوظة، جربي تحدّثي الصفحة بعد شوي.' },
+    en: { title: "Couldn't update the menu", desc: 'An unexpected error happened while updating the menu. The menu below is the last saved version — try refreshing shortly.' }
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════
+   المنطق — لا حاجة لتعديله عادةً
+   ══════════════════════════════════════════════════════════════ */
+const fmt = n => n.toLocaleString('en-US');
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// رقم الطاولة يجي من رابط الـQR الخاص فيها، مثال: index.html?table=5
+const state = {
+  lang: SETTINGS.defaultLang === 'en' ? 'en' : 'ar',
+  q: '',
+  open: SETTINGS.openFirstSection === false ? '' : DATA[0].id,
+  table: new URLSearchParams(location.search).get('table') || '',
+  banner: null // مفتاح من ERROR_STATES لو فشل تحديث القائمة، وإلا null
+};
+
+function render() {
+  const { lang, q, open } = state;
+  const ar = lang === 'ar';
+  const needle = q.trim().toLowerCase();
+  const match = it => !needle || it.ar.includes(needle) || it.en.toLowerCase().includes(needle);
+
+  const sections = DATA.map((sec, i) => {
+    const items = sec.items.filter(match).map((it) => {
+      const sizes = (it.sizes || []).map(s => ({ label: ar ? s[0] : s[1], ar: s[0], en: s[1], price: fmt(s[2]), raw: s[2] }));
+      return {
+        title: ar ? it.ar : it.en,
+        sub: ar ? it.en : it.ar,
+        itemAr: it.ar,
+        itemEn: it.en,
+        desc: ar ? (it.dAr || '') : (it.dEn || ''),
+        best: SETTINGS.showBadges && !!it.best,
+        img: it.img || null,
+        sizes,
+        p: it.p || 0,
+        priceText: it.sizes ? '' : fmt(it.p)
+      };
+    });
+    return {
+      id: sec.id,
+      num: String(i + 1).padStart(2, '0'),
+      label: ar ? sec.ar : sec.en,
+      img: sec.img || null,
+      count: items.length + ' ' + (ar ? 'صنف' : (items.length === 1 ? 'item' : 'items')),
+      items
+    };
+  }).filter(s => s.items.length);
+
+  const dir = ar ? 'rtl' : 'ltr';
+  document.documentElement.dir = dir;
+  document.documentElement.lang = lang;
+
+  const tagline = ar
+    ? 'قهوة مختصة، تحميص طازج، وكل شي بيتحضّر بالطلب. اختر قسمك وابدأ.'
+    : 'Specialty coffee, fresh roast, everything made to order. Pick a section and start.';
+  const ph = ar ? 'ابحث عن صنف…' : 'Search the menu…';
+  const bestLabel = ar ? 'الأكثر طلباً' : 'MOST POPULAR';
+  const emptyLabel = ar ? 'ما لقينا شي بهذا الاسم' : 'Nothing matched that search';
+  const langBtn = ar ? 'EN' : 'ع';
+
+  const bannerCopy = state.banner ? (ERROR_STATES[state.banner] || ERROR_STATES.error) : null;
+  const bannerHtml = bannerCopy ? `
+    <div class="data-banner">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#96281d" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><circle cx="12" cy="16" r="0.7" fill="#96281d" stroke="none"/></svg>
+      <div class="data-banner-text">
+        <strong>${esc((ar ? bannerCopy.ar : bannerCopy.en).title)}</strong>
+        <span>${esc((ar ? bannerCopy.ar : bannerCopy.en).desc)}</span>
+      </div>
+      <button type="button" class="data-banner-retry" data-action="retry-fetch">${ar ? 'تحديث' : 'Refresh'}</button>
+    </div>
+  ` : '';
+
+  const sectionsHtml = sections.map(s => {
+    const isOpen = needle ? true : open === s.id;
+    const itemsHtml = isOpen ? `<div class="section-items">${s.items.map(it => `
+      <div class="item">
+        <div class="item-main">
+          <div class="item-title-row">
+            <span class="item-title">${esc(it.title)}</span>
+            ${it.best ? `<span class="item-badge">${esc(bestLabel)}</span>` : ''}
+            ${state.table ? `<button type="button" class="item-note-toggle" data-action="toggle-note">${ar ? '✎ ملاحظة' : '✎ Note'}</button>` : ''}
+          </div>
+          ${it.desc ? `<span class="item-desc">${esc(it.desc)}</span>` : ''}
+          ${state.table ? `<div class="item-note-row" hidden><input class="item-note-input" placeholder="${ar ? 'ملاحظة (بدون سكر، حليب زيادة...)' : 'Note (no sugar, extra milk...)'}" maxlength="200"></div>` : ''}
+          ${it.sizes.length ? `<div class="item-sizes">${it.sizes.map(s => {
+            const payload = esc(JSON.stringify({ itemAr: it.itemAr, itemEn: it.itemEn, sizeAr: s.ar, sizeEn: s.en, price: s.raw }));
+            return state.table
+              ? `<button type="button" class="size-pill order-btn" data-order="${payload}"><span>${esc(s.label)}</span><span class="size-price">${esc(s.price)}</span></button>`
+              : `<span class="size-pill"><span>${esc(s.label)}</span><span class="size-price">${esc(s.price)}</span></span>`;
+          }).join('')}</div>` : (state.table
+              ? `<button type="button" class="item-price order-btn" data-order="${esc(JSON.stringify({ itemAr: it.itemAr, itemEn: it.itemEn, sizeAr: '', sizeEn: '', price: it.p }))}">${esc(it.priceText)}</button>`
+              : `<span class="item-price">${esc(it.priceText)}</span>`)}
+        </div>
+        ${SETTINGS.showThumbs ? `<div class="item-thumb">${(it.img || s.img) ? `<img src="${it.img || s.img}" alt="${esc(it.title)}">` : SHISHA_ICON}</div>` : ''}
+      </div>
+    `).join('')}</div>` : '';
+
+    return `
+      <div class="section-card">
+        <button class="section-head" data-toggle="${s.id}">
+          <span class="section-num">${s.num}</span>
+          <span class="section-label">${esc(s.label)}</span>
+          <span class="section-rule"></span>
+          <span class="section-count">${esc(s.count)}</span>
+          <span class="section-mark">${isOpen ? '−' : '+'}</span>
+        </button>
+        ${itemsHtml}
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('app').innerHTML = `
+    <header class="header">
+      <div class="container header-inner">
+        <div class="header-top">
+          <div class="logo">
+            <img class="logo-img" src="logo.png" alt="DeFacto Cafe">
+          </div>
+          <button class="lang-btn" id="langToggle">${langBtn}</button>
+        </div>
+        <p class="tagline">${esc(tagline)}</p>
+      </div>
+    </header>
+
+    <div class="search-bar">
+      <div class="container search-bar-row">
+        <div class="search-wrap">
+          <input type="text" class="search-input" id="searchInput" value="${esc(q)}" placeholder="${esc(ph)}">
+        </div>
+        ${state.table ? `<span class="table-badge">${ar ? 'طاولة' : 'Table'} ${esc(state.table)}</span>` : ''}
+      </div>
+    </div>
+
+    ${bannerHtml}
+
+    <main class="container">
+      ${sections.length
+        ? `<div class="menu-grid">${sectionsHtml}</div>`
+        : `<div class="empty-state">${esc(emptyLabel)}</div>`}
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-top">
+        <img class="footer-logo-img" src="logo.png" alt="DeFacto Cafe">
+        <p class="footer-tagline">${ar ? 'من قلبنا لفنجانكم' : 'From our heart to your cup'}</p>
+      </div>
+      <div class="footer-grid">
+        <div class="footer-card">
+          <div class="footer-card-group">
+            <span class="footer-card-title">${ar ? 'زوروا' : 'VISIT'}</span>
+            <p>${ar ? 'حلب — الشهباء القديمة، جانب جامع الرضوان، مول عمار سابقًا' : 'Aleppo — Old Shahba, next to Al-Radwan Mosque (formerly Ammar Mall)'}</p>
+          </div>
+          <div class="footer-card-group">
+            <span class="footer-card-title">${ar ? 'اتصل بنا' : 'CALL US'}</span>
+            <p dir="ltr" style="text-align:${ar ? 'right' : 'left'}"><a href="tel:+963940690070" style="color:inherit;text-decoration:none">+963 940 690 070</a></p>
+            <a class="footer-card-social" href="#" aria-label="Instagram" target="_blank" rel="noopener">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="0.7" fill="currentColor" stroke="none"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="footer-card">
+          <span class="footer-card-title">${ar ? 'موقعنا' : 'FIND US'}</span>
+          <div class="footer-map">
+            <iframe src="https://www.google.com/maps?q=6479+RF7+Defacto,+Aleppo,+Syria&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="DeFacto Cafe location"></iframe>
+            <a class="footer-map-marker" href="https://maps.app.goo.gl/Looii8WxC8hYmzKD8" target="_blank" rel="noopener" aria-label="${ar ? 'فتح الموقع بخرائط جوجل' : 'Open location in Google Maps'}">
+              <img src="logo.png" alt="">
+            </a>
+          </div>
+          <a class="footer-map-link" href="https://maps.app.goo.gl/Looii8WxC8hYmzKD8" target="_blank" rel="noopener">${ar ? 'فتح بخرائط جوجل ↗' : 'Open in Google Maps ↗'}</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <a class="footer-credit" href="https://www.paradox-agency.com" target="_blank" rel="noopener">
+          <img src="paradox-logo.png" alt="Paradox" class="footer-credit-logo">
+        </a>
+      </div>
+    </footer>
+  `;
+
+  // ربط الأحداث بعد كل عملية رسم
+  document.getElementById('langToggle').addEventListener('click', () => {
+    state.lang = state.lang === 'ar' ? 'en' : 'ar';
+    render();
+  });
+  const input = document.getElementById('searchInput');
+  input.addEventListener('input', e => { state.q = e.target.value; render(); restoreFocus(input); });
+  document.querySelectorAll('[data-toggle]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-toggle');
+      state.open = state.open === id ? '' : id;
+      render();
+    });
+  });
+  document.querySelectorAll('[data-order]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const payload = JSON.parse(btn.getAttribute('data-order'));
+      const noteInput = btn.closest('.item')?.querySelector('.item-note-input');
+      if (noteInput && noteInput.value.trim()) payload.note = noteInput.value.trim();
+      placeOrder(btn, payload, noteInput);
+    });
+  });
+  document.querySelectorAll('[data-action="toggle-note"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const row = btn.closest('.item-main').querySelector('.item-note-row');
+      row.hidden = !row.hidden;
+      if (!row.hidden) row.querySelector('.item-note-input').focus();
+    });
+  });
+  const retryBtn = document.querySelector('[data-action="retry-fetch"]');
+  if (retryBtn) retryBtn.addEventListener('click', () => { state.banner = null; render(); loadMenuData(); });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   إرسال الطلب للمطبخ (بس إذا كان رقم الطاولة معروف من رابط الـQR)
+   ══════════════════════════════════════════════════════════════ */
+async function placeOrder(btn, payload, noteInput) {
+  if (!state.table || btn.disabled) return;
+  btn.disabled = true;
+  const original = btn.textContent;
+  try {
+    const res = await fetch('api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ table: state.table, ...payload })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showOrderModal(payload);
+      if (noteInput) { noteInput.value = ''; noteInput.closest('.item-note-row').hidden = true; }
+    } else {
+      showToast(state.lang === 'ar' ? 'صار خطأ، جربي مرة تانية' : 'Something went wrong, try again', true);
+    }
+  } catch {
+    showToast(state.lang === 'ar' ? 'ما قدرنا نوصل للسيرفر' : 'Could not reach the server', true);
+  }
+  setTimeout(() => { btn.disabled = false; btn.textContent = original; }, 1200);
+}
+
+let toastTimer = null;
+function showToast(msg, isError) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.toggle('toast-error', !!isError);
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   نافذة تأكيد الطلب — بتوضح رقم الطاولة بشكل ما فيه لبس
+   ══════════════════════════════════════════════════════════════ */
+const orderModal = document.getElementById('orderModal');
+let orderModalTimer = null;
+
+function showOrderModal(payload) {
+  const ar = state.lang === 'ar';
+  document.getElementById('orderModalTitle').textContent = ar ? 'تم إرسال طلبك للمطبخ' : 'Your order is on its way';
+  document.getElementById('orderModalTableLabel').textContent = ar ? 'طاولة' : 'Table';
+  document.getElementById('orderModalTableNum').textContent = state.table;
+  const itemLabel = ar
+    ? (payload.sizeAr ? `${payload.itemAr} — ${payload.sizeAr}` : payload.itemAr)
+    : (payload.sizeEn ? `${payload.itemEn || payload.itemAr} — ${payload.sizeEn}` : (payload.itemEn || payload.itemAr));
+  document.getElementById('orderModalItem').textContent = itemLabel;
+  const noteEl = document.getElementById('orderModalNote');
+  if (payload.note) { noteEl.textContent = (ar ? 'ملاحظة: ' : 'Note: ') + payload.note; noteEl.hidden = false; }
+  else { noteEl.hidden = true; }
+  document.getElementById('orderModalClose').textContent = ar ? 'تمام' : 'Got it';
+  orderModal.classList.add('show');
+  clearTimeout(orderModalTimer);
+  orderModalTimer = setTimeout(closeOrderModal, 4000);
+}
+function closeOrderModal() {
+  orderModal.classList.remove('show');
+  clearTimeout(orderModalTimer);
+}
+document.getElementById('orderModalClose').addEventListener('click', closeOrderModal);
+orderModal.addEventListener('click', e => { if (e.target === orderModal) closeOrderModal(); });
+
+// يحافظ على تركيز حقل البحث (والمؤشر) بعد إعادة الرسم أثناء الكتابة
+function restoreFocus(input) {
+  const el = document.getElementById('searchInput');
+  if (el) {
+    el.focus();
+    const pos = input.value.length;
+    el.setSelectionRange(pos, pos);
+  }
+}
+
+render();
+
+/* ══════════════════════════════════════════════════════════════
+   جلب أحدث نسخة من القائمة (menu-data.json) — القائمة المعروضة
+   (النسخة الاحتياطية أو آخر نسخة ناجحة) بتضل ظاهرة وقابلة للطلب
+   دايمًا؛ لو فشل التحديث بيظهر بس شريط تنبيه فوقها بدون ما يخفيها.
+   ══════════════════════════════════════════════════════════════ */
+function showDataBanner(key) {
+  state.banner = ERROR_STATES[key] ? key : 'error';
+  render();
+}
+function hideDataBanner() {
+  if (state.banner) { state.banner = null; render(); }
+}
+
+let menuLoadToken = 0;
+function loadMenuData() {
+  const myToken = ++menuLoadToken;
+
+  if (!navigator.onLine) { showDataBanner('offline'); return; }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+  fetch('menu-data.json', { cache: 'no-store', signal: controller.signal })
+    .then(res => {
+      clearTimeout(timeoutId);
+      if (res.status === 404) return Promise.reject({ kind: 'notFound' });
+      if (res.status === 429) return Promise.reject({ kind: 'rateLimited' });
+      if (res.status >= 500) return Promise.reject({ kind: 'server' });
+      if (!res.ok) return Promise.reject({ kind: 'error' });
+      return res.json().catch(() => Promise.reject({ kind: 'parse' }));
+    })
+    .then(fresh => {
+      if (myToken !== menuLoadToken) return;
+      if (!Array.isArray(fresh) || !fresh.length) return Promise.reject({ kind: 'parse' });
+      DATA = fresh;
+      hideDataBanner();
+      render();
+    })
+    .catch(err => {
+      if (myToken !== menuLoadToken) return;
+      clearTimeout(timeoutId);
+      if (err && err.name === 'AbortError') return showDataBanner('timeout');
+      showDataBanner(err && err.kind ? err.kind : 'error');
+    });
+}
+
+window.addEventListener('offline', () => showDataBanner('offline'));
+window.addEventListener('online', () => { hideDataBanner(); loadMenuData(); });
+
+// اختبار الحالات السبع يدويًا: أضيفي ?testerror=KEY على الرابط
+// (offline, timeout, server, notFound, rateLimited, parse) أو
+// ?testerror=1 لأي حالة عامة غير متوقعة — القائمة بتضل ظاهرة تحت الشريط.
+const TEST_ERROR = new URLSearchParams(location.search).get('testerror');
+if (TEST_ERROR) {
+  showDataBanner(TEST_ERROR === '1' ? 'error' : TEST_ERROR);
+} else {
+  loadMenuData();
+}
+</script>
+
+</body>
+</html>

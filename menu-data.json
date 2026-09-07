@@ -1,0 +1,275 @@
+[
+  {
+    "id": "hot",
+    "ar": "قهوة ساخنة",
+    "en": "Hot Coffee",
+    "items": [
+      {
+        "ar": "إسبريسو",
+        "en": "Espres",
+        "dAr": "جرعة قهوة مركزة، تحميص غامق ورغوة كريمية.",
+        "dEn": "A concentrated shot, dark roast with a rich crema.",
+        "best": true,
+        "sizes": [
+          [
+            "سينغل",
+            "Single",
+            12000
+          ],
+          [
+            "دوبل",
+            "Double",
+            16000
+          ]
+        ]
+      },
+      {
+        "ar": "أمريكانو",
+        "en": "Americano",
+        "dAr": "إسبريسو ممدود بالمي الساخن، طعم خفيف ومتوازن.",
+        "dEn": "Espresso lengthened with hot water, light and balanced.",
+        "best": false,
+        "p": 15000
+      },
+      {
+        "ar": "كابتشينو",
+        "en": "Cappuccino",
+        "dAr": "إسبريسو مع حليب مبخّر ورغوة كثيفة.",
+        "dEn": "Espresso with steamed milk and a thick foam cap.",
+        "best": true,
+        "sizes": [
+          [
+            "وسط",
+            "Medium",
+            18000
+          ],
+          [
+            "كبير",
+            "Large",
+            22000
+          ]
+        ]
+      },
+      {
+        "ar": "لاتيه",
+        "en": "Latte",
+        "dAr": "قهوة ناعمة بحليب مبخّر وفن لاتيه.",
+        "dEn": "Smooth coffee with steamed milk and latte art.",
+        "best": false,
+        "p": 20000
+      },
+      {
+        "ar": "موكا",
+        "en": "Mocha",
+        "dAr": "لاتيه بلمسة شوكولا غنية.",
+        "dEn": "Latte with a rich chocolate twist.",
+        "best": false,
+        "p": 24000
+      },
+      {
+        "ar": "قهوة تركية",
+        "en": "Turkish Coffee",
+        "dAr": "قهوة تركية أصيلة، تُحضّر على الرمل.",
+        "dEn": "Traditional Turkish coffee, sand-brewed.",
+        "best": false,
+        "p": 14000
+      }
+    ],
+    "img": "hot-coffee.jpg"
+  },
+  {
+    "id": "cold",
+    "ar": "قهوة باردة",
+    "en": "Cold Coffee",
+    "items": [
+      {
+        "ar": "آيس أمريكانو",
+        "en": "Iced Americano",
+        "dAr": "أمريكانو مثلّج، منعش وخفيف.",
+        "dEn": "Chilled Americano, light and refreshing.",
+        "best": false,
+        "p": 18000
+      },
+      {
+        "ar": "آيس لاتيه",
+        "en": "Iced Latte",
+        "dAr": "لاتيه بارد فوق الثلج مع حليب طازج.",
+        "dEn": "Cold latte over ice with fresh milk.",
+        "best": true,
+        "sizes": [
+          [
+            "وسط",
+            "Medium",
+            22000
+          ],
+          [
+            "كبير",
+            "Large",
+            26000
+          ]
+        ]
+      },
+      {
+        "ar": "كولد برو",
+        "en": "Cold Brew",
+        "dAr": "قهوة منقوعة ببرودة لساعات، نعومة بدون حموضة.",
+        "dEn": "Slow cold-steeped coffee, smooth and low-acid.",
+        "best": false,
+        "p": 26000
+      },
+      {
+        "ar": "آيس موكا",
+        "en": "Iced Mocha",
+        "dAr": "موكا باردة بلمسة شوكولا وكريما.",
+        "dEn": "Iced mocha with chocolate and cream.",
+        "best": false,
+        "p": 27000
+      },
+      {
+        "ar": "أفوغاتو",
+        "en": "Affogato",
+        "dAr": "سكوب آيسكريم فانيلا مغروق بإسبريسو ساخن.",
+        "dEn": "Vanilla ice cream drowned in a hot espresso shot.",
+        "best": false,
+        "p": 25000
+      }
+    ],
+    "img": "cold-coffee.jpg"
+  },
+  {
+    "id": "frappe",
+    "ar": "مشروبات باردة",
+    "en": "Frappé & Smoothies",
+    "items": [
+      {
+        "ar": "فرابيه كراميل",
+        "en": "Caramel Frappé",
+        "dAr": "فرابيه مثلج بنكهة الكراميل الغنية.",
+        "dEn": "Iced frappé with rich caramel flavor.",
+        "best": true,
+        "p": 28000
+      },
+      {
+        "ar": "فرابيه نوتيلا",
+        "en": "Nutella Frappé",
+        "dAr": "فرابيه بطعم النوتيلا والبندق.",
+        "dEn": "Frappé with Nutella and hazelnut flavor.",
+        "best": false,
+        "p": 32000
+      },
+      {
+        "ar": "سموذي فراولة",
+        "en": "Strawberry Smoothie",
+        "dAr": "سموذي فراولة طازج وكريمي.",
+        "dEn": "Fresh, creamy strawberry smoothie.",
+        "best": false,
+        "p": 26000
+      },
+      {
+        "ar": "سموذي مانجا",
+        "en": "Mango Smoothie",
+        "dAr": "سموذي مانجا استوائي منعش.",
+        "dEn": "Refreshing tropical mango smoothie.",
+        "best": false,
+        "p": 26000
+      },
+      {
+        "ar": "ميلك شيك فانيلا",
+        "en": "Vanilla Milkshake",
+        "dAr": "ميلك شيك فانيلا كلاسيكي وكريمي.",
+        "dEn": "Classic, creamy vanilla milkshake.",
+        "best": false,
+        "p": 24000
+      }
+    ],
+    "img": "frappe.jpg"
+  },
+  {
+    "id": "juice",
+    "ar": "عصائر طازجة",
+    "en": "Fresh Juices",
+    "items": [
+      {
+        "ar": "برتقال",
+        "en": "Orange",
+        "dAr": "عصير برتقال طازج معصور بالطلب.",
+        "dEn": "Fresh orange juice, squeezed to order.",
+        "best": false,
+        "p": 20000
+      },
+      {
+        "ar": "ليمون بالنعنع",
+        "en": "Lemon Mint",
+        "dAr": "ليمون بالنعنع، منعش ومنعّم.",
+        "dEn": "Lemon and mint, cool and refreshing.",
+        "best": true,
+        "p": 18000
+      },
+      {
+        "ar": "كوكتيل فواكه",
+        "en": "Fruit Cocktail",
+        "dAr": "مزيج فواكه موسمية طازجة.",
+        "dEn": "A blend of fresh seasonal fruits.",
+        "best": false,
+        "p": 30000
+      },
+      {
+        "ar": "رمان",
+        "en": "Pomegranate",
+        "dAr": "عصير رمان طبيعي ١٠٠٪.",
+        "dEn": "100% natural pomegranate juice.",
+        "best": false,
+        "p": 28000
+      }
+    ],
+    "img": "juice.jpg"
+  },
+  {
+    "id": "tea",
+    "ar": "شاي وأعشاب",
+    "en": "Tea & Herbs",
+    "items": [
+      {
+        "ar": "شاي أسود",
+        "en": "Black Tea",
+        "dAr": "شاي أسود كلاسيكي.",
+        "dEn": "Classic black tea.",
+        "best": false,
+        "p": 8000
+      },
+      {
+        "ar": "شاي بالنعنع",
+        "en": "Mint Tea",
+        "dAr": "شاي بالنعنع الطازج.",
+        "dEn": "Tea with fresh mint.",
+        "best": true,
+        "p": 11000
+      },
+      {
+        "ar": "شاي أخضر",
+        "en": "Green Tea",
+        "dAr": "شاي أخضر خفيف ومنعش.",
+        "dEn": "Light and refreshing green tea.",
+        "best": false,
+        "p": 10000
+      },
+      {
+        "ar": "زهورات",
+        "en": "Herbal Blend",
+        "dAr": "مزيج زهورات وأعشاب طبيعية.",
+        "dEn": "A natural blend of herbs and flowers.",
+        "best": false,
+        "p": 12000
+      },
+      {
+        "ar": "يانسون",
+        "en": "Anise",
+        "dAr": "يانسون دافئ، مهدّئ للمعدة.",
+        "dEn": "Warm anise, gentle on the stomach.",
+        "best": false,
+        "p": 10000
+      }
+    ],
+    "img": "tea.jpg"
+  }
+]

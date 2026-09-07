@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DeFacto Cafe — لوحة التحكم</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f3f2f2;
+    --surface: #ffffff;
+    --text: #201f1d;
+    --muted: #7d7979;
+    --divider: rgba(32,31,29,.16);
+    --accent: #c0392b;      /* نفس أحمر كلمة CAFE بالهيدر */
+    --accent-dark: #96281d;
+    --accent-soft: rgba(192,57,43,.08);
+    --danger: #c0392b;
+    --ok: #2e7d55;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: "Tajawal", Tahoma, Arial, sans-serif;
+    min-height: 100vh;
+  }
+  button { font: inherit; cursor: pointer; }
+  input, textarea { font: inherit; }
+  [hidden] { display: none !important; }
+
+  /* ── شاشة الدخول ── */
+  .login-wrap {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
+  }
+  .login-card {
+    width: 100%; max-width: 360px; background: var(--surface);
+    border: 1px solid var(--divider); border-radius: 12px;
+    box-shadow: 0 8px 28px rgba(32,31,29,.08);
+    padding: 32px 28px; display: flex; flex-direction: column; align-items: center; gap: 22px;
+  }
+  .login-card img { height: 52px; width: auto; }
+  .login-title { font-size: 15px; font-weight: 700; color: var(--text); margin: 0; }
+  .field { width: 100%; display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 12px; color: var(--muted); }
+  .field input {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--divider); border-radius: 8px;
+    background: var(--bg); color: var(--text);
+  }
+  .field input:focus { outline: none; border-color: var(--accent); }
+  .btn {
+    padding: 11px 20px; border-radius: 8px; border: 0; font-weight: 700; font-size: 14px;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .login-card .btn-primary { width: 100%; }
+  .btn-secondary { background: transparent; border: 1px solid var(--divider); color: var(--text); }
+  .btn-secondary:hover { background: var(--accent-soft); border-color: var(--accent); }
+  .btn-ghost { background: transparent; border: 0; color: var(--muted); font-size: 13px; }
+  .btn-ghost:hover { color: var(--accent); }
+  .btn-danger { background: transparent; border: 1px solid var(--divider); color: var(--danger); }
+  .btn-danger:hover { background: rgba(192,57,43,.08); border-color: var(--danger); }
+  .error-msg { color: var(--danger); font-size: 12.5px; text-align: center; min-height: 16px; }
+
+  /* ── لوحة التحكم ── */
+  .app { display: none; }
+  .app.visible { display: block; }
+  .topbar {
+    position: sticky; top: 0; z-index: 5; background: var(--surface);
+    border-bottom: 1px solid var(--divider);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px; gap: 16px; flex-wrap: wrap;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 14px; }
+  .topbar img { height: 34px; width: auto; }
+  .topbar-title { font-size: 14px; font-weight: 700; }
+  .topbar-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+  .topbar-actions > * { flex: none; white-space: nowrap; }
+  .save-status { font-size: 12.5px; color: var(--muted); white-space: nowrap; flex: none; }
+  .save-status.ok { color: var(--ok); }
+  .save-status.err { color: var(--danger); }
+  .last-saved { font-size: 11px; color: var(--muted); white-space: nowrap; flex: none; }
+  #saveBtn { position: relative; }
+  .unsaved-dot {
+    position: absolute; top: -4px; inset-inline-end: -4px; width: 10px; height: 10px;
+    border-radius: 50%; background: #ffb020; border: 2px solid var(--surface);
+    animation: unsaved-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes unsaved-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.25); opacity: .75; }
+  }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+
+  .section-block {
+    background: var(--surface); border: 1px solid var(--divider); border-radius: 10px; overflow: hidden;
+  }
+  .section-head {
+    display: flex; align-items: center; gap: 10px; padding: 14px 16px;
+    background: var(--bg); cursor: pointer; flex-wrap: wrap;
+  }
+  .section-head .drag-handle { color: var(--muted); font-size: 13px; }
+  .section-head-fields { display: flex; gap: 8px; flex: 1; flex-wrap: wrap; min-width: 200px; }
+  .section-head input { padding: 7px 10px; border: 1px solid var(--divider); border-radius: 6px; background: var(--surface); font-size: 13.5px; }
+  .section-head input[data-field="ar"], .section-head input[data-field="en"] { flex: 1; min-width: 110px; font-weight: 700; }
+  .section-toggle { font-size: 13px; color: var(--muted); flex: none; padding: 4px 8px; }
+  .section-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+
+  .item-block {
+    border: 1px solid var(--divider); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px;
+    background: var(--bg);
+  }
+  .item-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .item-row input, .item-row textarea {
+    padding: 8px 10px; border: 1px solid var(--divider); border-radius: 6px; background: var(--surface); font-size: 13px;
+  }
+  .item-row .grow { flex: 1; min-width: 140px; }
+  .item-row textarea { width: 100%; min-height: 40px; resize: vertical; font-family: inherit; }
+  /* ── صورة الصنف: تظهر كـ"صورة مصغّرة" جنب حقول الصنف، بنفس منطق شكلها بالمنيو ── */
+  .item-block-body { display: flex; gap: 12px; align-items: flex-start; }
+  .item-image-col { flex: none; width: 76px; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .item-fields-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+  .item-image-preview {
+    width: 76px; height: 76px; border-radius: 8px; border: 1px solid var(--divider);
+    background: var(--surface); display: flex; align-items: center; justify-content: center; overflow: hidden;
+  }
+  .item-image-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .preview-placeholder-icon { width: 26px; height: 26px; color: var(--muted); }
+  .item-image-btn-mini {
+    width: 100%; text-align: center; font-size: 11px; padding: 5px 4px; cursor: pointer;
+    border: 1px solid var(--divider); border-radius: 6px; background: var(--surface); color: var(--muted);
+  }
+  .item-image-btn-mini:hover { border-color: var(--accent); color: var(--accent); }
+  .item-image-remove-mini { font-size: 10.5px; color: var(--danger); background: none; border: 0; cursor: pointer; padding: 0; }
+  .item-image-remove-mini:hover { text-decoration: underline; }
+  .item-image-status { font-size: 10.5px; color: var(--muted); text-align: center; }
+  .item-image-status.err { color: var(--danger); }
+  .item-image-status.ok { color: var(--ok); }
+
+  .item-flags { display: flex; align-items: center; gap: 16px; font-size: 12.5px; color: var(--muted); flex-wrap: wrap; }
+  .item-flags label { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+  .price-single input { width: 110px; }
+  .sizes-list { display: flex; flex-direction: column; gap: 8px; }
+
+  /* ── إضافة سريعة لأحجام شائعة ── */
+  .preset-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .preset-row .hint { flex: none; }
+  .preset-chip {
+    font-size: 11.5px; padding: 4px 12px; border-radius: 999px; border: 1px dashed var(--divider);
+    background: var(--surface); color: var(--muted);
+  }
+  .preset-chip:hover { border-color: var(--accent); color: var(--accent); border-style: solid; }
+
+  /* ── صف حجم واحد: بطاقة واضحة الحدود بدل حقول ملزوقة ── */
+  .size-row {
+    display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;
+    background: var(--surface); border: 1px solid var(--divider); border-radius: 8px; padding: 10px;
+  }
+  .size-row.size-incomplete { border-color: #d68910; background: #fffaf0; }
+  .size-row-fields { display: flex; gap: 10px; flex: 1 1 220px; flex-wrap: wrap; }
+  .size-field { display: flex; flex-direction: column; gap: 3px; }
+  .size-field label { font-size: 10.5px; color: var(--muted); }
+  .size-field input {
+    padding: 6px 8px; font-size: 12.5px; border: 1px solid var(--divider); border-radius: 6px; background: var(--bg);
+    width: 100%; box-sizing: border-box;
+  }
+  .size-field-name, .size-field-price { flex: 1; min-width: 84px; }
+  .size-row-warn { font-size: 10.5px; color: #b7791f; align-self: center; }
+  .size-row-actions { display: flex; gap: 4px; flex: none; align-self: center; margin-inline-start: auto; }
+  .icon-btn {
+    width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--divider); background: var(--surface);
+    color: var(--muted); font-size: 11px; display: flex; align-items: center; justify-content: center; padding: 0;
+  }
+  .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .icon-btn:disabled { opacity: .35; }
+  .icon-btn-danger:hover { border-color: var(--danger); color: var(--danger); background: rgba(192,57,43,.08); }
+
+  .item-row-end { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+
+  .add-row { display: flex; justify-content: flex-start; }
+  .footer-actions { display: flex; justify-content: center; padding: 12px 0 40px; }
+  .empty-note { text-align: center; color: var(--muted); font-size: 13px; padding: 20px; }
+  .hint { font-size: 11.5px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- ── شاشة الدخول ── -->
+<div class="login-wrap" id="loginWrap">
+  <form class="login-card" id="loginForm">
+    <img src="logo.png" alt="DeFacto Cafe">
+    <p class="login-title">دخول لوحة التحكم</p>
+    <div class="field">
+      <label for="passInput">كلمة السر</label>
+      <input type="password" id="passInput" autocomplete="current-password" required>
+    </div>
+    <button type="submit" class="btn btn-primary">دخول</button>
+    <div class="error-msg" id="loginError"></div>
+  </form>
+</div>
+
+<!-- ── لوحة التحكم ── -->
+<div class="app" id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <img src="logo.png" alt="DeFacto Cafe">
+      <span class="topbar-title">لوحة تحكم المنيو</span>
+    </div>
+    <div class="topbar-actions">
+      <span class="save-status" id="saveStatus"></span>
+      <span class="last-saved" id="lastSaved"></span>
+      <a class="btn btn-secondary" href="index.html" target="_blank" style="text-decoration:none;display:inline-flex;align-items:center">معاينة الموقع</a>
+      <button class="btn btn-primary" id="saveBtn">
+        حفظ التغييرات
+        <span class="unsaved-dot" id="unsavedDot" hidden title="في تعديلات ما انحفظت"></span>
+      </button>
+      <button class="btn btn-ghost" id="logoutBtn">خروج</button>
+    </div>
+  </div>
+
+  <div class="container" id="sectionsContainer"></div>
+
+  <div class="footer-actions">
+    <button class="btn btn-secondary" id="addSectionBtn">+ إضافة قسم جديد</button>
+  </div>
+</div>
+
+<!-- ── قوالب تُستنسخ عند الإضافة ── -->
+<template id="sectionTemplate">
+  <div class="section-block">
+    <div class="section-head" data-action="toggle-section">
+      <span class="drag-handle">≡</span>
+      <div class="section-head-fields">
+        <input data-field="ar" placeholder="اسم القسم (عربي)">
+        <input data-field="en" placeholder="Section name (English)">
+        <input type="hidden" data-field="img">
+      </div>
+      <span class="section-toggle" data-role="toggle-label">▾</span>
+      <button type="button" class="btn btn-danger" data-action="delete-section">حذف القسم</button>
+    </div>
+    <div class="section-body">
+      <div class="items-list"></div>
+      <div class="add-row"><button type="button" class="btn btn-secondary" data-action="add-item">+ إضافة صنف</button></div>
+    </div>
+  </div>
+</template>
+
+<template id="itemTemplate">
+  <div class="item-block">
+    <div class="item-block-body">
+      <div class="item-image-col">
+        <div class="item-image-preview" data-role="image-preview" title="بدون صورة خاصة — رح تستخدم صورة القسم">
+          <img data-role="image-preview-img" hidden>
+          <svg data-role="image-preview-empty" class="preview-placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="3"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <path d="M21 15l-5-5-9 9"/>
+          </svg>
+        </div>
+        <label class="item-image-btn-mini">
+          صورة
+          <input type="file" accept="image/png,image/jpeg,image/webp" data-role="image-file" hidden>
+        </label>
+        <button type="button" class="item-image-remove-mini" data-action="remove-item-image" data-role="image-remove" hidden>إزالة</button>
+        <span class="item-image-status" data-role="image-status"></span>
+        <input type="hidden" data-field="img">
+      </div>
+      <div class="item-fields-col">
+        <div class="item-row">
+          <input class="grow" data-field="ar" placeholder="اسم الصنف (عربي)">
+          <input class="grow" data-field="en" placeholder="Item name (English)">
+        </div>
+        <div class="item-row">
+          <textarea class="grow" data-field="dAr" placeholder="وصف قصير (عربي)"></textarea>
+          <textarea class="grow" data-field="dEn" placeholder="Short description (English)"></textarea>
+        </div>
+        <div class="item-flags">
+          <label><input type="checkbox" data-field="best"> الأكثر طلباً</label>
+          <label><input type="checkbox" data-field="hasSizes" data-action="toggle-sizes"> أحجام متعددة (بدل سعر واحد)</label>
+        </div>
+        <div class="price-single" data-role="price-single">
+          <input type="text" inputmode="numeric" pattern="[0-9]*" dir="ltr" class="price-field" data-field="p" placeholder="السعر">
+        </div>
+        <div class="sizes-list" data-role="sizes-list" hidden>
+          <div class="preset-row">
+            <span class="hint">إضافة سريعة:</span>
+            <button type="button" class="preset-chip" data-action="add-preset-size" data-preset-ar="صغير" data-preset-en="Small">+ صغير</button>
+            <button type="button" class="preset-chip" data-action="add-preset-size" data-preset-ar="وسط" data-preset-en="Medium">+ وسط</button>
+            <button type="button" class="preset-chip" data-action="add-preset-size" data-preset-ar="كبير" data-preset-en="Large">+ كبير</button>
+            <button type="button" class="preset-chip" data-action="add-preset-size" data-preset-ar="سينغل" data-preset-en="Single">+ سينغل</button>
+            <button type="button" class="preset-chip" data-action="add-preset-size" data-preset-ar="دوبل" data-preset-en="Double">+ دوبل</button>
+          </div>
+          <div class="add-row"><button type="button" class="btn btn-ghost" data-action="add-size">+ إضافة حجم مخصص</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="item-row-end">
+      <span class="hint">السعر بالليرة السورية</span>
+      <button type="button" class="btn btn-danger" data-action="delete-item">حذف الصنف</button>
+    </div>
+  </div>
+</template>
+
+<template id="sizeRowTemplate">
+  <div class="size-row">
+    <div class="size-row-fields">
+      <div class="size-field size-field-name">
+        <label>الاسم بالعربي</label>
+        <input data-field="sizeAr" placeholder="مثال: كبير">
+      </div>
+      <div class="size-field size-field-name">
+        <label>Name in English</label>
+        <input data-field="sizeEn" placeholder="e.g. Large">
+      </div>
+      <div class="size-field size-field-price">
+        <label>السعر (ل.س)</label>
+        <input data-field="sizePrice" type="text" inputmode="numeric" pattern="[0-9]*" dir="ltr" class="price-field" placeholder="0">
+      </div>
+    </div>
+    <span class="size-row-warn" data-role="size-warn" hidden>⚠ ناقص بيانات</span>
+    <div class="size-row-actions">
+      <button type="button" class="icon-btn icon-btn-danger" data-action="remove-size" title="حذف">✕</button>
+    </div>
+  </div>
+</template>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   الدخول
+   ══════════════════════════════════════════════════════════════ */
+const loginWrap = document.getElementById('loginWrap');
+const app = document.getElementById('app');
+const loginForm = document.getElementById('loginForm');
+const loginError = document.getElementById('loginError');
+
+let adminPassword = sessionStorage.getItem('dc_admin_pass') || '';
+
+async function tryLogin(password) {
+  loginError.textContent = '';
+  try {
+    const res = await fetch('api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      adminPassword = password;
+      sessionStorage.setItem('dc_admin_pass', password);
+      loginWrap.hidden = true;
+      app.classList.add('visible');
+      loadMenu();
+    } else {
+      loginError.textContent = 'كلمة السر غلط، حاولي مرة تانية.';
+    }
+  } catch (e) {
+    loginError.textContent = 'ما قدرنا نتواصل مع السيرفر. تأكدي إنو server.js شغّال.';
+  }
+}
+
+loginForm.addEventListener('submit', e => {
+  e.preventDefault();
+  tryLogin(document.getElementById('passInput').value);
+});
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  if (isDirty && !confirm('عندك تعديلات ما انحفظت — متأكدة بدك تطلعي بدون حفظ؟')) return;
+  sessionStorage.removeItem('dc_admin_pass');
+  location.reload();
+});
+
+// إذا عنا كلمة سر محفوظة بهالجلسة، جربي تسجيل دخول تلقائي
+if (adminPassword) tryLogin(adminPassword);
+
+/* ══════════════════════════════════════════════════════════════
+   بناء لوحة التحكم من menu-data.json
+   ══════════════════════════════════════════════════════════════ */
+const sectionsContainer = document.getElementById('sectionsContainer');
+const sectionTpl = document.getElementById('sectionTemplate');
+const itemTpl = document.getElementById('itemTemplate');
+const sizeRowTpl = document.getElementById('sizeRowTemplate');
+const saveStatus = document.getElementById('saveStatus');
+const lastSavedEl = document.getElementById('lastSaved');
+const unsavedDot = document.getElementById('unsavedDot');
+
+/* ══════════════════════════════════════════════════════════════
+   تتبّع التعديلات الغير محفوظة — نقطة تنبيه على الزر + تحذير
+   قبل مغادرة الصفحة، حتى ما يضيع شغل حدا بالغلط
+   ══════════════════════════════════════════════════════════════ */
+let isDirty = false;
+function markDirty() { isDirty = true; unsavedDot.hidden = false; }
+function markClean() { isDirty = false; unsavedDot.hidden = true; }
+
+window.addEventListener('beforeunload', e => {
+  if (!isDirty) return;
+  e.preventDefault();
+  e.returnValue = '';
+});
+
+// أي تعديل بحقل (نص، سعر، حجم، مربع اختيار...) بيعتبر تغيير غير محفوظ
+['input', 'change'].forEach(evt => {
+  document.addEventListener(evt, e => {
+    if (e.target.closest('#sectionsContainer')) markDirty();
+  });
+});
+
+async function loadMenu() {
+  sectionsContainer.innerHTML = '<div class="empty-note">عم نحمّل المنيو…</div>';
+  try {
+    const res = await fetch('menu-data.json', { cache: 'no-store' });
+    const sections = await res.json();
+    renderSections(sections);
+    markClean();
+  } catch (e) {
+    sectionsContainer.innerHTML = '<div class="empty-note">ما قدرنا نجيب بيانات المنيو.</div>';
+  }
+}
+
+function renderSections(sections) {
+  sectionsContainer.innerHTML = '';
+  sections.forEach((sec, i) => sectionsContainer.appendChild(buildSectionBlock(sec, i === 0)));
+  if (!sections.length) {
+    sectionsContainer.innerHTML = '<div class="empty-note">ما في أقسام بعد — ضيفي أول قسم من تحت.</div>';
+  }
+}
+
+function buildSectionBlock(sec, open) {
+  const node = sectionTpl.content.firstElementChild.cloneNode(true);
+  node.querySelector('[data-field="ar"]').value = sec.ar || '';
+  node.querySelector('[data-field="en"]').value = sec.en || '';
+  node.querySelector('[data-field="img"]').value = sec.img || '';
+  node.dataset.sectionId = sec.id || ('sec-' + Math.random().toString(36).slice(2, 8));
+
+  const itemsList = node.querySelector('.items-list');
+  (sec.items || []).forEach(it => itemsList.appendChild(buildItemBlock(it)));
+
+  const body = node.querySelector('.section-body');
+  const toggleLabel = node.querySelector('[data-role="toggle-label"]');
+  if (!open) { body.hidden = true; toggleLabel.textContent = '▸'; }
+  return node;
+}
+
+function buildItemBlock(it) {
+  const node = itemTpl.content.firstElementChild.cloneNode(true);
+  node.querySelector('[data-field="ar"]').value = it.ar || '';
+  node.querySelector('[data-field="en"]').value = it.en || '';
+  node.querySelector('[data-field="dAr"]').value = it.dAr || '';
+  node.querySelector('[data-field="dEn"]').value = it.dEn || '';
+  node.querySelector('[data-field="best"]').checked = !!it.best;
+  setItemImage(node, it.img || '');
+
+  const hasSizes = !!(it.sizes && it.sizes.length);
+  const sizesCb = node.querySelector('[data-field="hasSizes"]');
+  const priceSingle = node.querySelector('[data-role="price-single"]');
+  const sizesList = node.querySelector('[data-role="sizes-list"]');
+  sizesCb.checked = hasSizes;
+
+  if (hasSizes) {
+    priceSingle.hidden = true;
+    sizesList.hidden = false;
+    it.sizes.forEach(s => sizesList.insertBefore(buildSizeRow(s), sizesList.querySelector('.add-row')));
+  } else {
+    sizesList.hidden = true;
+    node.querySelector('[data-field="p"]').value = it.p ?? '';
+  }
+  return node;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   صورة الصنف: معاينة محلية + رفع فعلي للسيرفر
+   ══════════════════════════════════════════════════════════════ */
+
+// تحديث شكل معاينة الصورة (فاضي / صورة موجودة) + حقل img المخفي
+function setItemImage(itemNode, filename) {
+  itemNode.querySelector('[data-field="img"]').value = filename || '';
+  const img = itemNode.querySelector('[data-role="image-preview-img"]');
+  const empty = itemNode.querySelector('[data-role="image-preview-empty"]');
+  const removeBtn = itemNode.querySelector('[data-role="image-remove"]');
+  if (filename) {
+    img.src = filename;
+    img.hidden = false;
+    empty.hidden = true;
+    removeBtn.hidden = false;
+  } else {
+    img.hidden = true;
+    img.src = '';
+    empty.hidden = false;
+    removeBtn.hidden = true;
+  }
+}
+
+// تصغير الصورة بالمتصفح قبل الرفع (أسرع وأخف عالسيرفر والمنيو)
+function resizeImageFile(file, maxDim = 900, quality = 0.82) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('ما قدرنا نقرأ الملف'));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('الملف مش صورة صالحة'));
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) { height = Math.round(height * maxDim / width); width = maxDim; }
+          else { width = Math.round(width * maxDim / height); height = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadItemImage(itemNode, file) {
+  const status = itemNode.querySelector('[data-role="image-status"]');
+  status.textContent = 'جاري الرفع…';
+  status.className = 'item-image-status';
+  try {
+    const dataUrl = await resizeImageFile(file);
+    const res = await fetch('api/upload-image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+      body: JSON.stringify({ dataBase64: dataUrl })
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'فشل الرفع');
+    setItemImage(itemNode, data.filename);
+    markDirty();
+    status.textContent = 'تم الرفع ✓';
+    status.className = 'item-image-status ok';
+  } catch (e) {
+    status.textContent = e.message;
+    status.className = 'item-image-status err';
+  }
+  setTimeout(() => { status.textContent = ''; status.className = 'item-image-status'; }, 3000);
+}
+
+function buildSizeRow(s) {
+  const node = sizeRowTpl.content.firstElementChild.cloneNode(true);
+  if (s) {
+    node.querySelector('[data-field="sizeAr"]').value = s[0] || '';
+    node.querySelector('[data-field="sizeEn"]').value = s[1] || '';
+    node.querySelector('[data-field="sizePrice"]').value = s[2] ?? '';
+  }
+  checkSizeRow(node);
+  return node;
+}
+
+// تنبيه بصري لو حجم ناقص بيانات (بعض الحقول معبّاة والبعض لأ)
+function checkSizeRow(row) {
+  const ar = row.querySelector('[data-field="sizeAr"]').value.trim();
+  const en = row.querySelector('[data-field="sizeEn"]').value.trim();
+  const price = row.querySelector('[data-field="sizePrice"]').value.trim();
+  const anyFilled = ar || en || price;
+  const allFilled = ar && en && price && Number(price) > 0;
+  const incomplete = !!anyFilled && !allFilled;
+  row.classList.toggle('size-incomplete', incomplete);
+  const warn = row.querySelector('[data-role="size-warn"]');
+  if (warn) warn.hidden = !incomplete;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   الأحداث (إضافة/حذف/طي) — تفويض حدث واحد على مستوى الصفحة
+   ══════════════════════════════════════════════════════════════ */
+document.addEventListener('click', e => {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  const action = btn.dataset.action;
+
+  if (action === 'toggle-section') {
+    // تجاهلي الضغط جوا حقول الإدخال نفسها
+    if (e.target.tagName === 'INPUT') return;
+    const block = btn.closest('.section-block');
+    const body = block.querySelector('.section-body');
+    const label = block.querySelector('[data-role="toggle-label"]');
+    body.hidden = !body.hidden;
+    label.textContent = body.hidden ? '▸' : '▾';
+    return;
+  }
+
+  // ملاحظة: markDirty() تُستدعى بعد كل إجراء فعليًا صار (مو قبل confirm)،
+  // حتى لا تعتبر الصفحة "فيها تعديل" لو المستخدمة ألغت الحذف مثلاً.
+
+  if (action === 'delete-section') {
+    if (confirm('حذف هذا القسم بكل أصنافه؟')) { btn.closest('.section-block').remove(); markDirty(); }
+    return;
+  }
+
+  if (action === 'add-item') {
+    const list = btn.closest('.section-body').querySelector('.items-list');
+    list.appendChild(buildItemBlock({}));
+    markDirty();
+    return;
+  }
+
+  if (action === 'delete-item') {
+    if (confirm('حذف هذا الصنف؟')) { btn.closest('.item-block').remove(); markDirty(); }
+    return;
+  }
+
+  if (action === 'add-size') {
+    const list = btn.closest('[data-role="sizes-list"]');
+    list.insertBefore(buildSizeRow(null), list.querySelector('.add-row'));
+    markDirty();
+    return;
+  }
+
+  if (action === 'add-preset-size') {
+    const list = btn.closest('[data-role="sizes-list"]');
+    const row = buildSizeRow([btn.dataset.presetAr, btn.dataset.presetEn, '']);
+    list.insertBefore(row, list.querySelector('.add-row'));
+    row.querySelector('[data-field="sizePrice"]').focus();
+    markDirty();
+    return;
+  }
+
+  if (action === 'remove-size') {
+    btn.closest('.size-row').remove();
+    markDirty();
+    return;
+  }
+
+  if (action === 'remove-item-image') {
+    setItemImage(btn.closest('.item-block'), '');
+    markDirty();
+    return;
+  }
+});
+
+document.addEventListener('change', e => {
+  if (e.target.dataset.role === 'image-file') {
+    const file = e.target.files && e.target.files[0];
+    if (file) uploadItemImage(e.target.closest('.item-block'), file);
+    e.target.value = ''; // تسمح باختيار نفس الملف مرة تانية لو حبت
+  }
+});
+
+// تحويل أي أرقام عربية (١٢٣) مكتوبة أو ملصوقة بحقول السعر لأرقام إنكليزية عادية
+const ARABIC_DIGITS = '٠١٢٣٤٥٦٧٨٩';
+document.addEventListener('input', e => {
+  if (e.target.classList.contains('price-field')) {
+    const cleaned = e.target.value.replace(/[٠-٩]/g, d => ARABIC_DIGITS.indexOf(d)).replace(/[^0-9]/g, '');
+    if (cleaned !== e.target.value) e.target.value = cleaned;
+  }
+  const sizeRow = e.target.closest('.size-row');
+  if (sizeRow) checkSizeRow(sizeRow);
+});
+
+document.addEventListener('change', e => {
+  if (e.target.dataset.field === 'hasSizes') {
+    const itemBlock = e.target.closest('.item-block');
+    const priceSingle = itemBlock.querySelector('[data-role="price-single"]');
+    const sizesList = itemBlock.querySelector('[data-role="sizes-list"]');
+    if (e.target.checked) {
+      priceSingle.hidden = true;
+      sizesList.hidden = false;
+      if (!sizesList.querySelector('.size-row')) {
+        sizesList.insertBefore(buildSizeRow(null), sizesList.querySelector('.add-row'));
+      }
+    } else {
+      priceSingle.hidden = false;
+      sizesList.hidden = true;
+    }
+  }
+});
+
+document.getElementById('addSectionBtn').addEventListener('click', () => {
+  const block = buildSectionBlock({ ar: '', en: '', img: '', items: [] }, true);
+  sectionsContainer.appendChild(block);
+  block.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  markDirty();
+});
+
+/* ══════════════════════════════════════════════════════════════
+   قراءة الفورم بالكامل وتحويله لبيانات، ثم الحفظ عبر السيرفر
+   ══════════════════════════════════════════════════════════════ */
+function collectMenuFromForm() {
+  return Array.from(sectionsContainer.querySelectorAll(':scope > .section-block')).map(secNode => {
+    const ar = secNode.querySelector('[data-field="ar"]').value.trim();
+    const en = secNode.querySelector('[data-field="en"]').value.trim();
+    const img = secNode.querySelector('[data-field="img"]').value.trim();
+    const id = secNode.dataset.sectionId || slugify(en || ar);
+
+    const items = Array.from(secNode.querySelectorAll('.item-block')).map(itNode => {
+      const item = {
+        ar: itNode.querySelector('[data-field="ar"]').value.trim(),
+        en: itNode.querySelector('[data-field="en"]').value.trim(),
+        dAr: itNode.querySelector('[data-field="dAr"]').value.trim(),
+        dEn: itNode.querySelector('[data-field="dEn"]').value.trim(),
+        best: itNode.querySelector('[data-field="best"]').checked
+      };
+      const itemImg = itNode.querySelector('[data-field="img"]').value.trim();
+      if (itemImg) item.img = itemImg;
+      const hasSizes = itNode.querySelector('[data-field="hasSizes"]').checked;
+      if (hasSizes) {
+        item.sizes = Array.from(itNode.querySelectorAll('.size-row')).map(row => [
+          row.querySelector('[data-field="sizeAr"]').value.trim(),
+          row.querySelector('[data-field="sizeEn"]').value.trim(),
+          Number(row.querySelector('[data-field="sizePrice"]').value) || 0
+        ]).filter(s => s[0] || s[1]);
+      } else {
+        item.p = Number(itNode.querySelector('[data-field="p"]').value) || 0;
+      }
+      return item;
+    }).filter(it => it.ar || it.en);
+
+    const section = { id, ar, en, items };
+    if (img) section.img = img;
+    return section;
+  }).filter(sec => sec.ar || sec.en);
+}
+
+function slugify(s) {
+  return 'sec-' + (s || Math.random().toString(36).slice(2, 8))
+    .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || ('sec-' + Date.now());
+}
+
+async function saveMenu() {
+  const menu = collectMenuFromForm();
+  saveStatus.textContent = 'جاري الحفظ…';
+  saveStatus.className = 'save-status';
+  try {
+    const res = await fetch('api/menu', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+      body: JSON.stringify(menu)
+    });
+    const data = await res.json();
+    if (data.ok) {
+      saveStatus.textContent = 'تم الحفظ ✓';
+      saveStatus.className = 'save-status ok';
+      markClean();
+      lastSavedEl.textContent = 'آخر حفظ: ' + new Date().toLocaleTimeString('ar', { hour: '2-digit', minute: '2-digit' });
+    } else {
+      saveStatus.textContent = 'ما انحفظ: ' + (data.error || 'خطأ');
+      saveStatus.className = 'save-status err';
+    }
+  } catch (e) {
+    saveStatus.textContent = 'تعذّر الاتصال بالسيرفر';
+    saveStatus.className = 'save-status err';
+  }
+  setTimeout(() => { saveStatus.textContent = ''; saveStatus.className = 'save-status'; }, 4000);
+}
+
+document.getElementById('saveBtn').addEventListener('click', saveMenu);
+
+// اختصار Ctrl+S (أو Cmd+S على ماك) للحفظ السريع بدون ما تحتاجي توصلي للزر
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's' && app.classList.contains('visible')) {
+    e.preventDefault();
+    saveMenu();
+  }
+});
+</script>
+
+</body>
+</html>
