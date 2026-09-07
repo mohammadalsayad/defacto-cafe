@@ -397,32 +397,32 @@ const SETTINGS = {
    بتضل ظاهرة دايمًا، هاد بس شريط تنبيه فوقها لما يفشل جلب آخر تحديث ── */
 const ERROR_STATES = {
   offline: {
-    ar: { title: 'ما في اتصال بالإنترنت', desc: 'القائمة يلي تحت هي آخر نسخة محفوظة عنا. وصليها بالإنترنت وبتنحدّث تلقائيًا.' },
-    en: { title: 'No internet connection', desc: "The menu below is the last saved version. Reconnect and it'll update automatically." }
+    ar: { title: 'لا يوجد اتصال بالإنترنت', desc: '' },
+    en: { title: 'No internet connection', desc: '' }
   },
   timeout: {
-    ar: { title: 'الشبكة بطيئة شوي', desc: 'تأخر تحميل آخر تحديث للقائمة. القائمة تحت شغالة عادي، وبنحاول نجيب النسخة الجديدة تلقائيًا.' },
-    en: { title: 'Slow connection', desc: "The latest menu update is taking a while. The menu below still works — we'll keep trying in the background." }
+    ar: { title: 'الاتصال بشبكة ضعيف', desc: '' },
+    en: { title: 'Weak network connection', desc: '' }
   },
   server: {
-    ar: { title: 'تعذّر الوصول للسيرفر', desc: 'في مشكلة مؤقتة بجهة السيرفر. القائمة تحت هي آخر نسخة محفوظة، جربي تحدّثي بعد شوي.' },
-    en: { title: 'Server unavailable', desc: 'There is a temporary issue on our server. The menu below is the last saved version — try refreshing shortly.' }
+    ar: { title: 'تعذّر الوصول إلى السيرفر', desc: '' },
+    en: { title: 'Server unavailable', desc: '' }
   },
   notFound: {
-    ar: { title: 'ملف القائمة غير موجود', desc: 'تعذّر إيجاد بيانات القائمة المحدّثة. القائمة تحت هي النسخة الاحتياطية المدمجة بالموقع.' },
-    en: { title: 'Menu file not found', desc: "Couldn't find the updated menu data. The menu below is the built-in backup version." }
+    ar: { title: 'ملف القائمة غير موجود', desc: '' },
+    en: { title: 'Menu file not found', desc: '' }
   },
   rateLimited: {
-    ar: { title: 'عدد كبير من الطلبات حالياً', desc: 'السيرفر مشغول لحظيًا. القائمة تحت شغالة، وبنعيد المحاولة تلقائيًا خلال لحظات.' },
-    en: { title: 'High traffic right now', desc: "The server is busy for a moment. The menu below still works — we'll retry automatically shortly." }
+    ar: { title: 'عدد كبير من الطلبات حالياً', desc: '' },
+    en: { title: 'High traffic right now', desc: '' }
   },
   parse: {
-    ar: { title: 'بيانات القائمة غير مكتملة', desc: 'وصلت بيانات القائمة تالفة أو ناقصة. القائمة تحت هي آخر نسخة سليمة محفوظة عنا.' },
-    en: { title: 'Incomplete menu data', desc: 'The menu data we received was corrupted or incomplete. The menu below is the last known-good version.' }
+    ar: { title: 'بيانات القائمة غير مكتملة', desc: '' },
+    en: { title: 'Incomplete menu data', desc: '' }
   },
   error: {
-    ar: { title: 'تعذّر تحديث القائمة', desc: 'صار خطأ غير متوقع أثناء تحديث القائمة. القائمة تحت هي آخر نسخة محفوظة، جربي تحدّثي الصفحة بعد شوي.' },
-    en: { title: "Couldn't update the menu", desc: 'An unexpected error happened while updating the menu. The menu below is the last saved version — try refreshing shortly.' }
+    ar: { title: 'تعذّر تحديث القائمة', desc: '' },
+    en: { title: "Couldn't update the menu", desc: '' }
   }
 };
 
@@ -491,7 +491,7 @@ function render() {
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#96281d" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><circle cx="12" cy="16" r="0.7" fill="#96281d" stroke="none"/></svg>
       <div class="data-banner-text">
         <strong>${esc((ar ? bannerCopy.ar : bannerCopy.en).title)}</strong>
-        <span>${esc((ar ? bannerCopy.ar : bannerCopy.en).desc)}</span>
+        ${(ar ? bannerCopy.ar : bannerCopy.en).desc ? `<span>${esc((ar ? bannerCopy.ar : bannerCopy.en).desc)}</span>` : ''}
       </div>
       <button type="button" class="data-banner-retry" data-action="retry-fetch">${ar ? 'تحديث' : 'Refresh'}</button>
     </div>
