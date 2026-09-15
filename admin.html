@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light only">
 <title>DeFacto Cafe — لوحة التحكم</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -53,8 +54,9 @@
   .field input:focus { outline: none; border-color: var(--accent); }
   .btn {
     padding: 11px 20px; border-radius: 8px; border: 0; font-weight: 700; font-size: 14px;
+    forced-color-adjust: none;
   }
-  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary { background: var(--accent) !important; color: #fff !important; }
   .btn-primary:hover { background: var(--accent-dark); }
   .login-card .btn-primary { width: 100%; }
   .btn-secondary { background: transparent; border: 1px solid var(--divider); color: var(--text); }
