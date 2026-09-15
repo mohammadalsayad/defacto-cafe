@@ -66,6 +66,8 @@
   .header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
   .logo { display: flex; flex-direction: column; line-height: 1; gap: 10px; }
   .logo-img { height: clamp(56px, 8vw, 92px); width: auto; display: block; }
+  .header-actions { display: flex; align-items: center; gap: 10px; }
+  .mini-badge { height: 34px; width: auto; display: block; background: #ffffff; border-radius: 4px; padding: 2px 6px; }
   .lang-btn {
     font-family: "Tajawal", sans-serif; font-size: 12px; letter-spacing: .14em;
     padding: 8px 16px; background: transparent; border: 1px solid var(--color-accent-dark);
@@ -543,7 +545,10 @@ function render() {
           <div class="logo">
             <img class="logo-img" src="logo.png" alt="DeFacto Cafe">
           </div>
-          <button class="lang-btn" id="langToggle">${langBtn}</button>
+          <div class="header-actions">
+            <img class="mini-badge" src="iloveme-logo.png" alt="">
+            <button class="lang-btn" id="langToggle">${langBtn}</button>
+          </div>
         </div>
         <p class="tagline">${esc(tagline)}</p>
       </div>
