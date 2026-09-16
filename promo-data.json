@@ -1,9 +1,29 @@
 {
   "enabled": true,
-  "titleAr": "آيس لاتيه",
-  "titleEn": "Iced Latte",
-  "subAr": "لاتيه بارد فوق الثلج مع حليب طازج",
-  "subEn": "Cold latte over ice with fresh milk",
-  "imgs": ["cold-coffee.jpg"],
-  "sectionId": "cold"
+  "slides": [
+    {
+      "img": "cold-coffee.jpg",
+      "titleAr": "آيس لاتيه",
+      "titleEn": "Iced Latte",
+      "subAr": "لاتيه بارد فوق الثلج مع حليب طازج",
+      "subEn": "Cold latte over ice with fresh milk",
+      "sectionId": "cold"
+    },
+    {
+      "img": "item-1789568661848-221ua.jpg",
+      "titleAr": "آيس لاتيه",
+      "titleEn": "Iced Latte",
+      "subAr": "لاتيه بارد فوق الثلج مع حليب طازج",
+      "subEn": "Cold latte over ice with fresh milk",
+      "sectionId": "cold"
+    },
+    {
+      "img": "item-1789568693003-gy2mx.jpg",
+      "titleAr": "آيس لاتيه",
+      "titleEn": "Iced Latte",
+      "subAr": "لاتيه بارد فوق الثلج مع حليب طازج",
+      "subEn": "Cold latte over ice with fresh milk",
+      "sectionId": "cold"
+    }
+  ]
 }

@@ -180,6 +180,7 @@
 
   /* ── بانر إعلاني (لصنف/عرض/محل)، فوق شريط "الأكثر طلباً" ── */
   .promo-banner {
+    position: relative;
     background: var(--color-bg);
     border: 1px solid var(--color-divider);
     border-radius: 8px;
@@ -187,15 +188,21 @@
     overflow: hidden;
     margin-bottom: 28px;
   }
+  .promo-slide-card { display: none; }
+  .promo-slide-card.active { display: block; }
   .promo-media { position: relative; width: 100%; aspect-ratio: 3 / 2; overflow: hidden; }
-  .promo-slide {
-    position: absolute; inset: 0; width: 100%; height: 100%;
-    object-fit: cover; object-position: center 25%; display: block;
-    opacity: 0; transition: opacity .6s ease;
+  .promo-media img { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; display: block; }
+  .promo-arrow {
+    position: absolute; top: 50%; transform: translateY(-50%); z-index: 2;
+    width: 30px; height: 30px; border-radius: 50%; border: 0; cursor: pointer;
+    background: rgba(255,255,255,.85); color: #201f1d; font-size: 16px; line-height: 1;
+    display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 4px rgba(0,0,0,.25);
   }
-  .promo-slide.active { opacity: 1; }
-  .promo-dots { position: absolute; bottom: 9px; inset-inline: 0; display: flex; justify-content: center; gap: 5px; }
-  .promo-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.55); box-shadow: 0 0 2px rgba(0,0,0,.3); }
+  .promo-arrow:hover { background: #fff; }
+  .promo-arrow-prev { left: 10px; }
+  .promo-arrow-next { right: 10px; }
+  .promo-dots { position: absolute; bottom: 9px; inset-inline: 0; display: flex; justify-content: center; gap: 5px; z-index: 2; }
+  .promo-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.55); box-shadow: 0 0 2px rgba(0,0,0,.3); border: 0; padding: 0; cursor: pointer; }
   .promo-dot.active { background: #fff; }
   .promo-body { padding: 12px 16px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
   .promo-title { margin: 0; font-family: "Tajawal", sans-serif; font-size: 15px; font-weight: 800; color: var(--color-text); }
@@ -454,18 +461,21 @@ const SETTINGS = {
 };
 
 // نسخة احتياطية للبانر الإعلاني، تُستبدل بمحتوى promo-data.json (يُعدَّل من لوحة التحكم)
+// كل عنصر بمصفوفة slides هو "شريحة" مستقلة: صورتها + عنوانها + وصفها الخاصين فيها
 let PROMO = {
   enabled: true,
-  titleAr: 'آيس لاتيه', titleEn: 'Iced Latte',
-  subAr: 'لاتيه بارد فوق الثلج مع حليب طازج', subEn: 'Cold latte over ice with fresh milk',
-  imgs: ['cold-coffee.jpg'],
-  sectionId: 'cold'
+  slides: [
+    { img: 'cold-coffee.jpg', titleAr: 'آيس لاتيه', titleEn: 'Iced Latte', subAr: 'لاتيه بارد فوق الثلج مع حليب طازج', subEn: 'Cold latte over ice with fresh milk', sectionId: 'cold' }
+  ]
 };
-// بتدعم الشكل القديم (img: 'x.jpg') وبتحوّلو لمصفوفة صور
-function promoImages() {
-  if (Array.isArray(PROMO.imgs) && PROMO.imgs.length) return PROMO.imgs;
-  if (PROMO.img) return [PROMO.img];
-  return [];
+// بتدعم الشكل القديم (عنوان واحد مشترك لكل الصور) وبتحوّلو لشرائح مستقلة
+function promoSlides() {
+  if (Array.isArray(PROMO.slides) && PROMO.slides.length) return PROMO.slides;
+  const imgs = Array.isArray(PROMO.imgs) && PROMO.imgs.length ? PROMO.imgs : (PROMO.img ? [PROMO.img] : []);
+  return imgs.map(img => ({
+    img, titleAr: PROMO.titleAr, titleEn: PROMO.titleEn,
+    subAr: PROMO.subAr, subEn: PROMO.subEn, sectionId: PROMO.sectionId
+  }));
 }
 
 /* ── حالات فشل تحديث القائمة — القائمة المعروضة (نسخة احتياطية أو آخر نسخة ناجحة)
@@ -662,18 +672,29 @@ function render() {
     ${bannerHtml}
 
     <main class="container">
-      ${(!needle && PROMO && PROMO.enabled !== false && (PROMO.titleAr || PROMO.titleEn)) ? `
+      ${(() => {
+        const slides = (!needle && PROMO && PROMO.enabled !== false) ? promoSlides().filter(sl => sl.img && (sl.titleAr || sl.titleEn)) : [];
+        if (!slides.length) return '';
+        return `
       <div class="promo-banner">
-        <div class="promo-media">
-          ${promoImages().map((src, i) => `<img class="promo-slide${i === 0 ? ' active' : ''}" src="${esc(src)}" alt="${esc(ar ? (PROMO.titleAr || '') : (PROMO.titleEn || ''))}">`).join('')}
-          ${promoImages().length > 1 ? `<div class="promo-dots">${promoImages().map((_, i) => `<span class="promo-dot${i === 0 ? ' active' : ''}"></span>`).join('')}</div>` : ''}
-        </div>
-        <div class="promo-body">
-          <h3 class="promo-title">${esc(ar ? (PROMO.titleAr || '') : (PROMO.titleEn || ''))}</h3>
-          ${(ar ? PROMO.subAr : PROMO.subEn) ? `<p class="promo-sub">${esc(ar ? PROMO.subAr : PROMO.subEn)}</p>` : ''}
-          ${PROMO.sectionId ? `<button type="button" class="promo-cta" data-toggle="${esc(PROMO.sectionId)}">${ar ? 'جرّبه الآن' : 'Try it now'}</button>` : ''}
-        </div>
-      </div>` : ''}
+        ${slides.map((sl, i) => `
+        <div class="promo-slide-card${i === 0 ? ' active' : ''}">
+          <div class="promo-media">
+            <img src="${esc(sl.img)}" alt="${esc(ar ? (sl.titleAr || '') : (sl.titleEn || ''))}">
+            ${slides.length > 1 ? `
+            <button type="button" class="promo-arrow promo-arrow-prev" data-action="promo-prev" aria-label="${ar ? 'السابق' : 'Previous'}">‹</button>
+            <button type="button" class="promo-arrow promo-arrow-next" data-action="promo-next" aria-label="${ar ? 'التالي' : 'Next'}">›</button>
+            <div class="promo-dots">${slides.map((_, j) => `<button type="button" class="promo-dot${j === i ? ' active' : ''}" data-goto="${j}" aria-label="${ar ? 'صورة' : 'Slide'} ${j + 1}"></button>`).join('')}</div>
+            ` : ''}
+          </div>
+          <div class="promo-body">
+            <h3 class="promo-title">${esc(ar ? (sl.titleAr || '') : (sl.titleEn || ''))}</h3>
+            ${(ar ? sl.subAr : sl.subEn) ? `<p class="promo-sub">${esc(ar ? sl.subAr : sl.subEn)}</p>` : ''}
+            ${sl.sectionId ? `<button type="button" class="promo-cta" data-toggle="${esc(sl.sectionId)}">${ar ? 'جرّبه الآن' : 'Try it now'}</button>` : ''}
+          </div>
+        </div>`).join('')}
+      </div>`;
+      })()}
       ${popularHtml}
       ${sections.length
         ? `<div class="menu-grid">${sectionsHtml}</div>`
@@ -752,23 +773,32 @@ function render() {
   initPromoCarousel();
 }
 
-// تدوير تلقائي لصور البانر الإعلاني لو فيه أكتر من صورة
+// بانر إعلاني بعدة شرائح: تدوير تلقائي + سهمين + نقاط للتنقل اليدوي
 let promoCarouselTimer = null;
 function initPromoCarousel() {
   if (promoCarouselTimer) { clearInterval(promoCarouselTimer); promoCarouselTimer = null; }
-  const media = document.querySelector('.promo-media');
-  if (!media) return;
-  const slides = media.querySelectorAll('.promo-slide');
-  if (slides.length < 2) return;
-  const dots = media.querySelectorAll('.promo-dot');
-  let idx = 0;
-  promoCarouselTimer = setInterval(() => {
-    slides[idx].classList.remove('active');
-    if (dots[idx]) dots[idx].classList.remove('active');
-    idx = (idx + 1) % slides.length;
-    slides[idx].classList.add('active');
-    if (dots[idx]) dots[idx].classList.add('active');
-  }, 3500);
+  const banner = document.querySelector('.promo-banner');
+  if (!banner) return;
+  const cards = Array.from(banner.querySelectorAll(':scope > .promo-slide-card'));
+  if (cards.length < 2) return;
+  let idx = Math.max(0, cards.findIndex(c => c.classList.contains('active')));
+
+  function show(newIdx) {
+    cards[idx].classList.remove('active');
+    idx = (newIdx + cards.length) % cards.length;
+    cards[idx].classList.add('active');
+    banner.querySelectorAll('.promo-dot').forEach(d => d.classList.toggle('active', Number(d.dataset.goto) === idx));
+  }
+  function restartTimer() {
+    if (promoCarouselTimer) clearInterval(promoCarouselTimer);
+    promoCarouselTimer = setInterval(() => show(idx + 1), 4500);
+  }
+
+  banner.querySelectorAll('[data-action="promo-prev"]').forEach(b => b.addEventListener('click', () => { show(idx - 1); restartTimer(); }));
+  banner.querySelectorAll('[data-action="promo-next"]').forEach(b => b.addEventListener('click', () => { show(idx + 1); restartTimer(); }));
+  banner.querySelectorAll('.promo-dot').forEach(d => d.addEventListener('click', () => { show(Number(d.dataset.goto)); restartTimer(); }));
+
+  restartTimer();
 }
 
 /* ══════════════════════════════════════════════════════════════

@@ -38,7 +38,15 @@ function sanitizeMenu(sections) {
   }));
 }
 function sanitizePromo(promo) {
-  return { ...promo, titleEn: cleanEnglishText(promo.titleEn), subEn: cleanEnglishText(promo.subEn) };
+  const clean = { ...promo };
+  // الشكل الحالي: شرائح متعددة، كل وحدة إلها عنوان/وصف خاص فيها
+  if (Array.isArray(clean.slides)) {
+    clean.slides = clean.slides.map(sl => ({ ...sl, titleEn: cleanEnglishText(sl.titleEn), subEn: cleanEnglishText(sl.subEn) }));
+  }
+  // توافق مع الشكل القديم (عنوان واحد مشترك)
+  if (clean.titleEn !== undefined) clean.titleEn = cleanEnglishText(clean.titleEn);
+  if (clean.subEn !== undefined) clean.subEn = cleanEnglishText(clean.subEn);
+  return clean;
 }
 
 const MIME = {
