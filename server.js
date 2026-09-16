@@ -99,6 +99,34 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  // ── قراءة بيانات البانر الإعلاني ──
+  if (url.pathname === '/api/promo' && req.method === 'GET') {
+    try {
+      const data = fs.readFileSync(path.join(ROOT, 'promo-data.json'), 'utf8');
+      return send(res, 200, data, { 'Content-Type': 'application/json' });
+    } catch {
+      return send(res, 404, JSON.stringify({ error: 'not found' }), { 'Content-Type': 'application/json' });
+    }
+  }
+
+  // ── حفظ بيانات البانر الإعلاني (يتطلب كلمة السر بالهيدر) ──
+  if (url.pathname === '/api/promo' && req.method === 'POST') {
+    if (req.headers['x-admin-password'] !== ADMIN_PASSWORD) {
+      return send(res, 401, JSON.stringify({ ok: false, error: 'unauthorized' }), { 'Content-Type': 'application/json' });
+    }
+    try {
+      const body = await readBody(req);
+      const parsed = JSON.parse(body);
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('expected a promo object');
+      const target = path.join(ROOT, 'promo-data.json');
+      if (fs.existsSync(target)) fs.copyFileSync(target, path.join(ROOT, 'promo-data.backup.json'));
+      fs.writeFileSync(target, JSON.stringify(parsed, null, 2), 'utf8');
+      return send(res, 200, JSON.stringify({ ok: true }), { 'Content-Type': 'application/json' });
+    } catch (e) {
+      return send(res, 400, JSON.stringify({ ok: false, error: e.message }), { 'Content-Type': 'application/json' });
+    }
+  }
+
   // ── رفع صورة لصنف (من لوحة التحكم) — تتطلب كلمة السر ──
   if (url.pathname === '/api/upload-image' && req.method === 'POST') {
     if (req.headers['x-admin-password'] !== ADMIN_PASSWORD) {

@@ -117,7 +117,7 @@
     background: var(--bg);
   }
   .item-row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .item-row input, .item-row textarea {
+  .item-row input, .item-row textarea, .item-row select {
     padding: 8px 10px; border: 1px solid var(--divider); border-radius: 6px; background: var(--surface); font-size: 13px;
   }
   .item-row .grow { flex: 1; min-width: 140px; }
@@ -221,6 +221,52 @@
         <span class="unsaved-dot" id="unsavedDot" hidden title="في تعديلات ما انحفظت"></span>
       </button>
       <button class="btn btn-ghost" id="logoutBtn">خروج</button>
+    </div>
+  </div>
+
+  <div class="container" style="padding-bottom:0">
+    <div class="section-block" id="promoPanel">
+      <div class="section-head" style="cursor:default">
+        <span class="topbar-title">📣 الإعلان الترويجي (البانر فوق القائمة)</span>
+        <span style="flex:1"></span>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);cursor:pointer">
+          <input type="checkbox" id="promoEnabled" checked> إظهار البانر بالموقع
+        </label>
+      </div>
+      <div class="section-body">
+        <div class="item-block-body">
+          <div class="item-image-col">
+            <div class="item-image-preview" title="صورة الإعلان">
+              <img id="promoImagePreviewImg" hidden>
+              <svg id="promoImagePreviewEmpty" class="preview-placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="3"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <path d="M21 15l-5-5-9 9"/>
+              </svg>
+            </div>
+            <label class="item-image-btn-mini">
+              صورة
+              <input type="file" accept="image/png,image/jpeg,image/webp" id="promoImageFile" hidden>
+            </label>
+            <button type="button" class="item-image-remove-mini" id="promoImageRemove" hidden>إزالة</button>
+            <span class="item-image-status" id="promoImageStatus"></span>
+          </div>
+          <div class="item-fields-col">
+            <div class="item-row">
+              <input class="grow" id="promoTitleAr" placeholder="عنوان الإعلان (عربي)">
+              <input class="grow" id="promoTitleEn" placeholder="Ad title (English)">
+            </div>
+            <div class="item-row">
+              <input class="grow" id="promoSubAr" placeholder="نص فرعي قصير (عربي)">
+              <input class="grow" id="promoSubEn" placeholder="Short subtitle (English)">
+            </div>
+            <div class="item-row">
+              <select class="grow" id="promoSection"></select>
+            </div>
+            <span class="hint">زر "جرّبه الآن" بالبانر بيفتح القسم المختار هون. الصورة لازم تكون موجودة أصلاً بمجلد الموقع أو مرفوعة من هون.</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -406,7 +452,7 @@ window.addEventListener('beforeunload', e => {
 // أي تعديل بحقل (نص، سعر، حجم، مربع اختيار...) بيعتبر تغيير غير محفوظ
 ['input', 'change'].forEach(evt => {
   document.addEventListener(evt, e => {
-    if (e.target.closest('#sectionsContainer')) markDirty();
+    if (e.target.closest('#sectionsContainer') || e.target.closest('#promoPanel')) markDirty();
   });
 });
 
@@ -416,10 +462,113 @@ async function loadMenu() {
     const res = await fetch('menu-data.json', { cache: 'no-store' });
     const sections = await res.json();
     renderSections(sections);
+    populatePromoSectionOptions(sections);
+    await loadPromo();
     markClean();
   } catch (e) {
     sectionsContainer.innerHTML = '<div class="empty-note">ما قدرنا نجيب بيانات المنيو.</div>';
   }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   البانر الإعلاني — قراءة/كتابة promo-data.json
+   ══════════════════════════════════════════════════════════════ */
+function populatePromoSectionOptions(sections) {
+  const sel = document.getElementById('promoSection');
+  const current = sel.value;
+  sel.innerHTML = '';
+  const noneOpt = document.createElement('option');
+  noneOpt.value = ''; noneOpt.textContent = '— بدون رابط —';
+  sel.appendChild(noneOpt);
+  sections.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id || '';
+    opt.textContent = s.ar || s.en || s.id || '';
+    sel.appendChild(opt);
+  });
+  if (current) sel.value = current;
+}
+
+async function loadPromo() {
+  try {
+    const res = await fetch('promo-data.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error();
+    const promo = await res.json();
+    document.getElementById('promoEnabled').checked = promo.enabled !== false;
+    document.getElementById('promoTitleAr').value = promo.titleAr || '';
+    document.getElementById('promoTitleEn').value = promo.titleEn || '';
+    document.getElementById('promoSubAr').value = promo.subAr || '';
+    document.getElementById('promoSubEn').value = promo.subEn || '';
+    document.getElementById('promoSection').value = promo.sectionId || '';
+    setPromoImage(promo.img || '');
+  } catch (e) {
+    // ما في بانر محفوظ بعد — خليها فاضية، أول حفظ رح ينشئه
+  }
+}
+
+function setPromoImage(filename) {
+  const img = document.getElementById('promoImagePreviewImg');
+  const empty = document.getElementById('promoImagePreviewEmpty');
+  const removeBtn = document.getElementById('promoImageRemove');
+  img.dataset.filename = filename || '';
+  if (filename) {
+    img.src = filename; img.hidden = false; empty.hidden = true; removeBtn.hidden = false;
+  } else {
+    img.hidden = true; img.src = ''; empty.hidden = false; removeBtn.hidden = true;
+  }
+}
+
+async function uploadPromoImage(file) {
+  const status = document.getElementById('promoImageStatus');
+  status.textContent = 'جاري الرفع…';
+  status.className = 'item-image-status';
+  try {
+    const dataUrl = await resizeImageFile(file);
+    const res = await fetch('api/upload-image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+      body: JSON.stringify({ dataBase64: dataUrl })
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'فشل الرفع');
+    setPromoImage(data.filename);
+    markDirty();
+    status.textContent = 'تم الرفع ✓';
+    status.className = 'item-image-status ok';
+  } catch (e) {
+    status.textContent = e.message;
+    status.className = 'item-image-status err';
+  }
+  setTimeout(() => { status.textContent = ''; status.className = 'item-image-status'; }, 3000);
+}
+
+document.getElementById('promoImageFile').addEventListener('change', e => {
+  const file = e.target.files && e.target.files[0];
+  if (file) uploadPromoImage(file);
+  e.target.value = '';
+});
+document.getElementById('promoImageRemove').addEventListener('click', () => { setPromoImage(''); markDirty(); });
+
+function collectPromoFromForm() {
+  return {
+    enabled: document.getElementById('promoEnabled').checked,
+    titleAr: document.getElementById('promoTitleAr').value.trim(),
+    titleEn: document.getElementById('promoTitleEn').value.trim(),
+    subAr: document.getElementById('promoSubAr').value.trim(),
+    subEn: document.getElementById('promoSubEn').value.trim(),
+    sectionId: document.getElementById('promoSection').value,
+    img: document.getElementById('promoImagePreviewImg').dataset.filename || ''
+  };
+}
+
+async function savePromo() {
+  const res = await fetch('api/promo', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+    body: JSON.stringify(collectPromoFromForm())
+  });
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || 'فشل حفظ الإعلان');
 }
 
 function renderSections(sections) {
@@ -735,17 +884,16 @@ async function saveMenu() {
       body: JSON.stringify(menu)
     });
     const data = await res.json();
-    if (data.ok) {
-      saveStatus.textContent = 'تم الحفظ ✓';
-      saveStatus.className = 'save-status ok';
-      markClean();
-      lastSavedEl.textContent = 'آخر حفظ: ' + new Date().toLocaleTimeString('ar', { hour: '2-digit', minute: '2-digit' });
-    } else {
-      saveStatus.textContent = 'ما انحفظ: ' + (data.error || 'خطأ');
-      saveStatus.className = 'save-status err';
-    }
+    if (!data.ok) throw new Error(data.error || 'خطأ بحفظ المنيو');
+
+    await savePromo();
+
+    saveStatus.textContent = 'تم الحفظ ✓';
+    saveStatus.className = 'save-status ok';
+    markClean();
+    lastSavedEl.textContent = 'آخر حفظ: ' + new Date().toLocaleTimeString('ar', { hour: '2-digit', minute: '2-digit' });
   } catch (e) {
-    saveStatus.textContent = 'تعذّر الاتصال بالسيرفر';
+    saveStatus.textContent = 'ما انحفظ: ' + (e.message || 'تعذّر الاتصال بالسيرفر');
     saveStatus.className = 'save-status err';
   }
   setTimeout(() => { saveStatus.textContent = ''; saveStatus.className = 'save-status'; }, 4000);

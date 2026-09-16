@@ -445,6 +445,15 @@ const SETTINGS = {
   openFirstSection: true   // فتح أول قسم تلقائيًا
 };
 
+// نسخة احتياطية للبانر الإعلاني، تُستبدل بمحتوى promo-data.json (يُعدَّل من لوحة التحكم)
+let PROMO = {
+  enabled: true,
+  titleAr: 'آيس لاتيه', titleEn: 'Iced Latte',
+  subAr: 'لاتيه بارد فوق الثلج مع حليب طازج', subEn: 'Cold latte over ice with fresh milk',
+  img: 'cold-coffee.jpg',
+  sectionId: 'cold'
+};
+
 /* ── حالات فشل تحديث القائمة — القائمة المعروضة (نسخة احتياطية أو آخر نسخة ناجحة)
    بتضل ظاهرة دايمًا، هاد بس شريط تنبيه فوقها لما يفشل جلب آخر تحديث ── */
 const ERROR_STATES = {
@@ -639,13 +648,13 @@ function render() {
     ${bannerHtml}
 
     <main class="container">
-      ${!needle ? `
+      ${(!needle && PROMO && PROMO.enabled !== false && (PROMO.titleAr || PROMO.titleEn)) ? `
       <div class="promo-banner">
-        <div class="promo-media"><img src="cold-coffee.jpg" alt="${ar ? 'آيس لاتيه' : 'Iced Latte'}"></div>
+        <div class="promo-media"><img src="${esc(PROMO.img || 'cold-coffee.jpg')}" alt="${esc(ar ? (PROMO.titleAr || '') : (PROMO.titleEn || ''))}"></div>
         <div class="promo-body">
-          <h3 class="promo-title">${ar ? 'آيس لاتيه' : 'Iced Latte'}</h3>
-          <p class="promo-sub">${ar ? 'لاتيه بارد فوق الثلج مع حليب طازج' : 'Cold latte over ice with fresh milk'}</p>
-          <button type="button" class="promo-cta" data-toggle="cold">${ar ? 'جرّبه الآن' : 'Try it now'}</button>
+          <h3 class="promo-title">${esc(ar ? (PROMO.titleAr || '') : (PROMO.titleEn || ''))}</h3>
+          ${(ar ? PROMO.subAr : PROMO.subEn) ? `<p class="promo-sub">${esc(ar ? PROMO.subAr : PROMO.subEn)}</p>` : ''}
+          ${PROMO.sectionId ? `<button type="button" class="promo-cta" data-toggle="${esc(PROMO.sectionId)}">${ar ? 'جرّبه الآن' : 'Try it now'}</button>` : ''}
         </div>
       </div>` : ''}
       ${popularHtml}
@@ -851,6 +860,15 @@ function loadMenuData() {
 
 window.addEventListener('offline', () => showDataBanner('offline'));
 window.addEventListener('online', () => { hideDataBanner(); loadMenuData(); });
+
+// جلب بيانات البانر الإعلاني — صامت إذا فشل، القيمة الاحتياطية تضل ظاهرة
+function loadPromoData() {
+  fetch('promo-data.json', { cache: 'no-store' })
+    .then(res => (res.ok ? res.json() : Promise.reject()))
+    .then(data => { if (data && typeof data === 'object') { PROMO = data; render(); } })
+    .catch(() => {});
+}
+loadPromoData();
 
 // اختبار الحالات السبع يدويًا: أضيفي ?testerror=KEY على الرابط
 // (offline, timeout, server, notFound, rateLimited, parse) أو

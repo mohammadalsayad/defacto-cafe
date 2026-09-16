@@ -1,0 +1,9 @@
+{
+  "enabled": true,
+  "titleAr": "آيس لاتيه",
+  "titleEn": "Iced Latte",
+  "subAr": "لاتيه بارد فوق الثلج مع حليب طازج",
+  "subEn": "Cold latte over ice with fresh milk",
+  "img": "cold-coffee.jpg",
+  "sectionId": "cold"
+}
