@@ -178,6 +178,26 @@
   @media (min-width: 720px)  { .menu-grid { grid-template-columns: repeat(2, 1fr); } }
   @media (min-width: 1180px) { .menu-grid { grid-template-columns: repeat(3, 1fr); } }
 
+  /* ── بانر إعلاني (لصنف/عرض/محل)، فوق شريط "الأكثر طلباً" ── */
+  .promo-banner {
+    background: var(--color-bg);
+    border: 1px solid var(--color-divider);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(32,31,29,.05);
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  .promo-media { width: 100%; aspect-ratio: 16 / 10; overflow: hidden; }
+  .promo-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .promo-body { padding: 18px 20px; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+  .promo-title { margin: 0; font-family: "Tajawal", sans-serif; font-size: 20px; font-weight: 800; color: var(--color-text); }
+  .promo-sub { margin: 0; font-size: 13px; color: var(--color-muted); line-height: 1.6; }
+  .promo-cta {
+    margin-top: 4px; font-family: "Tajawal", sans-serif; font-size: 13px; font-weight: 700;
+    padding: 9px 22px; border-radius: 999px; border: 0; background: #c0392b; color: #fff; cursor: pointer;
+  }
+  .promo-cta:hover { background: #96281d; }
+
   /* ── شريط "الأكثر طلباً" — عرض أفقي بالتمرير، فوق قائمة الأقسام ── */
   .popular-showcase { margin-bottom: 28px; }
   .popular-showcase-title {
@@ -619,6 +639,15 @@ function render() {
     ${bannerHtml}
 
     <main class="container">
+      ${!needle ? `
+      <div class="promo-banner">
+        <div class="promo-media"><img src="cold-coffee.jpg" alt="${ar ? 'آيس لاتيه' : 'Iced Latte'}"></div>
+        <div class="promo-body">
+          <h3 class="promo-title">${ar ? 'آيس لاتيه' : 'Iced Latte'}</h3>
+          <p class="promo-sub">${ar ? 'لاتيه بارد فوق الثلج مع حليب طازج' : 'Cold latte over ice with fresh milk'}</p>
+          <button type="button" class="promo-cta" data-toggle="cold">${ar ? 'جرّبه الآن' : 'Try it now'}</button>
+        </div>
+      </div>` : ''}
       ${popularHtml}
       ${sections.length
         ? `<div class="menu-grid">${sectionsHtml}</div>`
