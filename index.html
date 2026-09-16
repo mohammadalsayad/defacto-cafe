@@ -226,7 +226,7 @@
   }
   .popular-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .popular-card-title { font-size: 13px; font-weight: 700; color: var(--color-text); line-height: 1.3; }
-  .popular-card-price { font-size: 11.5px; color: #c0392b; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .popular-card-price { font-family: "Tajawal", sans-serif; font-size: 12.5px; color: var(--color-text); font-variant-numeric: tabular-nums; }
 
   .section-card {
     background: var(--color-bg);
@@ -557,7 +557,7 @@ function render() {
       <h2 class="popular-showcase-title">${ar ? 'الأكثر طلباً' : 'Most Popular'}</h2>
       <div class="popular-scroll">
         ${popularItems.map(it => {
-          const priceLabel = it.sizes.length ? `${ar ? 'من ' : 'from '}${it.sizes[0].price}` : it.priceText;
+          const priceLabel = it.sizes.length ? it.sizes[0].price : it.priceText;
           return `
           <button type="button" class="popular-card" data-toggle="${esc(it.secId)}">
             <span class="popular-card-img">${it.img ? `<img src="${esc(it.img)}" alt="${esc(it.title)}">` : SHISHA_ICON}</span>
