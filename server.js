@@ -18,6 +18,29 @@ const PORT = process.env.PORT || 8090;
 // ── كلمة سر الأدمن: بتتحدد من متغيّر البيئة ADMIN_PASSWORD على الاستضافة ──
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'defacto2026';
 
+/* ── تنظيف الحقول الإنجليزية: تشيل تشكيل عربي أو محارف اتجاه خفية ممكن
+   تنلصق بالغلط وقت الكتابة بلوحة مفاتيح عربي/إنجليزي (مثل "ُEspresso").
+   بتشتغل كخط دفاع أخير هون بالسيرفر، حتى لو حدا نادى الـ API مباشرة
+   بدون المرور بلوحة التحكم. ── */
+function cleanEnglishText(s) {
+  return typeof s === 'string'
+    ? s.replace(/[ً-ٰٟ]/g, '').replace(/[​-‏‪-‮⁦-⁩]/g, '').trim()
+    : s;
+}
+function sanitizeMenu(sections) {
+  return sections.map(sec => ({
+    ...sec,
+    items: (sec.items || []).map(it => ({
+      ...it,
+      en: cleanEnglishText(it.en),
+      dEn: cleanEnglishText(it.dEn)
+    }))
+  }));
+}
+function sanitizePromo(promo) {
+  return { ...promo, titleEn: cleanEnglishText(promo.titleEn), subEn: cleanEnglishText(promo.subEn) };
+}
+
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
@@ -89,10 +112,11 @@ const server = http.createServer(async (req, res) => {
       const body = await readBody(req);
       const parsed = JSON.parse(body);
       if (!Array.isArray(parsed)) throw new Error('expected an array of sections');
+      const clean = sanitizeMenu(parsed);
       // نسخة احتياطية قبل الكتابة، تحسبًا لأي غلط
       const target = path.join(ROOT, 'menu-data.json');
       if (fs.existsSync(target)) fs.copyFileSync(target, path.join(ROOT, 'menu-data.backup.json'));
-      fs.writeFileSync(target, JSON.stringify(parsed, null, 2), 'utf8');
+      fs.writeFileSync(target, JSON.stringify(clean, null, 2), 'utf8');
       return send(res, 200, JSON.stringify({ ok: true }), { 'Content-Type': 'application/json' });
     } catch (e) {
       return send(res, 400, JSON.stringify({ ok: false, error: e.message }), { 'Content-Type': 'application/json' });
@@ -118,9 +142,10 @@ const server = http.createServer(async (req, res) => {
       const body = await readBody(req);
       const parsed = JSON.parse(body);
       if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('expected a promo object');
+      const clean = sanitizePromo(parsed);
       const target = path.join(ROOT, 'promo-data.json');
       if (fs.existsSync(target)) fs.copyFileSync(target, path.join(ROOT, 'promo-data.backup.json'));
-      fs.writeFileSync(target, JSON.stringify(parsed, null, 2), 'utf8');
+      fs.writeFileSync(target, JSON.stringify(clean, null, 2), 'utf8');
       return send(res, 200, JSON.stringify({ ok: true }), { 'Content-Type': 'application/json' });
     } catch (e) {
       return send(res, 400, JSON.stringify({ ok: false, error: e.message }), { 'Content-Type': 'application/json' });

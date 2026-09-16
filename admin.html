@@ -182,6 +182,7 @@
     background: var(--surface); border: 1px solid var(--divider); border-radius: 8px; padding: 10px;
   }
   .size-row.size-incomplete { border-color: #d68910; background: #fffaf0; }
+  .lang-mismatch { border-color: #d68910 !important; background: #fffaf0 !important; }
   .size-row-fields { display: flex; gap: 10px; flex: 1 1 220px; flex-wrap: wrap; }
   .size-field { display: flex; flex-direction: column; gap: 3px; }
   .size-field label { font-size: 10.5px; color: var(--muted); }
@@ -475,6 +476,7 @@ async function loadMenu() {
     renderSections(sections);
     populatePromoSectionOptions(sections);
     await loadPromo();
+    checkAllLangFields();
     markClean();
   } catch (e) {
     sectionsContainer.innerHTML = '<div class="empty-note">ما قدرنا نجيب بيانات المنيو.</div>';
@@ -586,9 +588,9 @@ function collectPromoFromForm() {
   return {
     enabled: document.getElementById('promoEnabled').checked,
     titleAr: document.getElementById('promoTitleAr').value.trim(),
-    titleEn: document.getElementById('promoTitleEn').value.trim(),
+    titleEn: cleanEnglishText(document.getElementById('promoTitleEn').value),
     subAr: document.getElementById('promoSubAr').value.trim(),
-    subEn: document.getElementById('promoSubEn').value.trim(),
+    subEn: cleanEnglishText(document.getElementById('promoSubEn').value),
     sectionId: document.getElementById('promoSection').value,
     imgs: promoImagesState.slice()
   };
@@ -851,6 +853,23 @@ document.addEventListener('input', e => {
   if (sizeRow) checkSizeRow(sizeRow);
 });
 
+/* ══════════════════════════════════════════════════════════════
+   تنبيه بصري لو انكتب حرف عربي بالغلط بحقل إنجليزي (متل ما صار مع
+   "Espresso Doppio") — بيلوّن الحقل برتقالي لحتى تلاحظيه قبل الحفظ
+   ══════════════════════════════════════════════════════════════ */
+const ARABIC_LETTERS = /[؀-ۿ]/;
+function isEnglishField(el) {
+  const f = el.dataset && el.dataset.field;
+  return f === 'en' || f === 'dEn' || f === 'sizeEn' || el.id === 'promoTitleEn' || el.id === 'promoSubEn';
+}
+function checkLangField(el) {
+  const bad = ARABIC_LETTERS.test(el.value);
+  el.classList.toggle('lang-mismatch', bad);
+  el.title = bad ? '⚠ في حروف عربي بحقل مفروض يكون إنجليزي — تأكدي منه' : '';
+}
+function checkAllLangFields() { document.querySelectorAll('[data-field="en"], [data-field="dEn"], [data-field="sizeEn"], #promoTitleEn, #promoSubEn').forEach(checkLangField); }
+document.addEventListener('input', e => { if (isEnglishField(e.target)) checkLangField(e.target); });
+
 document.addEventListener('change', e => {
   if (e.target.dataset.field === 'hasSizes') {
     const itemBlock = e.target.closest('.item-block');
@@ -879,19 +898,25 @@ document.getElementById('addSectionBtn').addEventListener('click', () => {
 /* ══════════════════════════════════════════════════════════════
    قراءة الفورم بالكامل وتحويله لبيانات، ثم الحفظ عبر السيرفر
    ══════════════════════════════════════════════════════════════ */
+// تنظيف الحقول الإنجليزية: تشيل تشكيل عربي أو محارف اتجاه خفية ممكن تنلصق
+// بالغلط وقت الكتابة بلوحة مفاتيح عربي/إنجليزي (مثل "ُEspresso")
+function cleanEnglishText(s) {
+  return String(s || '').replace(/[ً-ٰٟ]/g, '').replace(/[​-‏‪-‮⁦-⁩]/g, '').trim();
+}
+
 function collectMenuFromForm() {
   return Array.from(sectionsContainer.querySelectorAll(':scope > .section-block')).map(secNode => {
     const ar = secNode.querySelector('[data-field="ar"]').value.trim();
-    const en = secNode.querySelector('[data-field="en"]').value.trim();
+    const en = cleanEnglishText(secNode.querySelector('[data-field="en"]').value);
     const img = secNode.querySelector('[data-field="img"]').value.trim();
     const id = secNode.dataset.sectionId || slugify(en || ar);
 
     const items = Array.from(secNode.querySelectorAll('.item-block')).map(itNode => {
       const item = {
         ar: itNode.querySelector('[data-field="ar"]').value.trim(),
-        en: itNode.querySelector('[data-field="en"]').value.trim(),
+        en: cleanEnglishText(itNode.querySelector('[data-field="en"]').value),
         dAr: itNode.querySelector('[data-field="dAr"]').value.trim(),
-        dEn: itNode.querySelector('[data-field="dEn"]').value.trim(),
+        dEn: cleanEnglishText(itNode.querySelector('[data-field="dEn"]').value),
         best: itNode.querySelector('[data-field="best"]').checked
       };
       const itemImg = itNode.querySelector('[data-field="img"]').value.trim();
@@ -900,7 +925,7 @@ function collectMenuFromForm() {
       if (hasSizes) {
         item.sizes = Array.from(itNode.querySelectorAll('.size-row')).map(row => [
           row.querySelector('[data-field="sizeAr"]').value.trim(),
-          row.querySelector('[data-field="sizeEn"]').value.trim(),
+          cleanEnglishText(row.querySelector('[data-field="sizeEn"]').value),
           Number(row.querySelector('[data-field="sizePrice"]').value) || 0
         ]).filter(s => s[0] || s[1]);
       } else {
