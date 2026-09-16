@@ -143,6 +143,25 @@
   .item-image-status.err { color: var(--danger); }
   .item-image-status.ok { color: var(--ok); }
 
+  /* ── صور البانر الإعلاني: صف صور متعددة قابلة للحذف + بلاطة إضافة ── */
+  .promo-images-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .promo-image-thumb {
+    position: relative; width: 76px; height: 76px; border-radius: 8px; overflow: hidden;
+    border: 1px solid var(--divider); background: var(--bg); flex: none;
+  }
+  .promo-image-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .promo-image-thumb-remove {
+    position: absolute; top: 3px; inset-inline-end: 3px; width: 18px; height: 18px; border-radius: 50%;
+    border: 0; background: rgba(32,31,29,.65); color: #fff; font-size: 11px; line-height: 1;
+    display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer;
+  }
+  .promo-image-add {
+    width: 76px; height: 76px; flex: none; border-radius: 8px; border: 1px dashed var(--divider);
+    display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--muted);
+    cursor: pointer; background: var(--surface);
+  }
+  .promo-image-add:hover { border-color: var(--accent); color: var(--accent); }
+
   .item-flags { display: flex; align-items: center; gap: 16px; font-size: 12.5px; color: var(--muted); flex-wrap: wrap; }
   .item-flags label { display: flex; align-items: center; gap: 5px; cursor: pointer; }
   .price-single input { width: 110px; }
@@ -234,38 +253,26 @@
         </label>
       </div>
       <div class="section-body">
-        <div class="item-block-body">
-          <div class="item-image-col">
-            <div class="item-image-preview" title="صورة الإعلان">
-              <img id="promoImagePreviewImg" hidden>
-              <svg id="promoImagePreviewEmpty" class="preview-placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="3"/>
-                <circle cx="8.5" cy="8.5" r="1.5"/>
-                <path d="M21 15l-5-5-9 9"/>
-              </svg>
-            </div>
-            <label class="item-image-btn-mini">
-              صورة
-              <input type="file" accept="image/png,image/jpeg,image/webp" id="promoImageFile" hidden>
-            </label>
-            <button type="button" class="item-image-remove-mini" id="promoImageRemove" hidden>إزالة</button>
-            <span class="item-image-status" id="promoImageStatus"></span>
-          </div>
-          <div class="item-fields-col">
-            <div class="item-row">
-              <input class="grow" id="promoTitleAr" placeholder="عنوان الإعلان (عربي)">
-              <input class="grow" id="promoTitleEn" placeholder="Ad title (English)">
-            </div>
-            <div class="item-row">
-              <input class="grow" id="promoSubAr" placeholder="نص فرعي قصير (عربي)">
-              <input class="grow" id="promoSubEn" placeholder="Short subtitle (English)">
-            </div>
-            <div class="item-row">
-              <select class="grow" id="promoSection"></select>
-            </div>
-            <span class="hint">زر "جرّبه الآن" بالبانر بيفتح القسم المختار هون. الصورة لازم تكون موجودة أصلاً بمجلد الموقع أو مرفوعة من هون.</span>
-          </div>
+        <span class="hint">صور البانر (بتدور تلقائيًا لو أكتر من وحدة):</span>
+        <div class="promo-images-row" id="promoImagesRow">
+          <label class="promo-image-add" title="إضافة صورة">
+            +
+            <input type="file" accept="image/png,image/jpeg,image/webp" id="promoImageFile" hidden>
+          </label>
         </div>
+        <span class="item-image-status" id="promoImageStatus"></span>
+        <div class="item-row" style="margin-top:6px">
+          <input class="grow" id="promoTitleAr" placeholder="عنوان الإعلان (عربي)">
+          <input class="grow" id="promoTitleEn" placeholder="Ad title (English)">
+        </div>
+        <div class="item-row">
+          <input class="grow" id="promoSubAr" placeholder="نص فرعي قصير (عربي)">
+          <input class="grow" id="promoSubEn" placeholder="Short subtitle (English)">
+        </div>
+        <div class="item-row">
+          <select class="grow" id="promoSection"></select>
+        </div>
+        <span class="hint">زر "جرّبه الآن" بالبانر بيفتح القسم المختار هون.</span>
       </div>
     </div>
   </div>
@@ -500,23 +507,51 @@ async function loadPromo() {
     document.getElementById('promoSubAr').value = promo.subAr || '';
     document.getElementById('promoSubEn').value = promo.subEn || '';
     document.getElementById('promoSection').value = promo.sectionId || '';
-    setPromoImage(promo.img || '');
+    promoImagesState = Array.isArray(promo.imgs) ? promo.imgs.slice() : (promo.img ? [promo.img] : []);
   } catch (e) {
     // ما في بانر محفوظ بعد — خليها فاضية، أول حفظ رح ينشئه
+    promoImagesState = [];
   }
+  renderPromoImages();
 }
 
-function setPromoImage(filename) {
-  const img = document.getElementById('promoImagePreviewImg');
-  const empty = document.getElementById('promoImagePreviewEmpty');
-  const removeBtn = document.getElementById('promoImageRemove');
-  img.dataset.filename = filename || '';
-  if (filename) {
-    img.src = filename; img.hidden = false; empty.hidden = true; removeBtn.hidden = false;
-  } else {
-    img.hidden = true; img.src = ''; empty.hidden = false; removeBtn.hidden = true;
-  }
+// صور البانر — قائمة قابلة للتكبير/الحذف، مو صورة وحدة
+let promoImagesState = [];
+
+function escAttr(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
+
+function renderPromoImages() {
+  const row = document.getElementById('promoImagesRow');
+  row.innerHTML = promoImagesState.map((src, i) => `
+    <div class="promo-image-thumb">
+      <img src="${escAttr(src)}" alt="">
+      <button type="button" class="promo-image-thumb-remove" data-remove-promo-img="${i}" title="حذف">✕</button>
+    </div>
+  `).join('') + `
+    <label class="promo-image-add" title="إضافة صورة">
+      +
+      <input type="file" accept="image/png,image/jpeg,image/webp" id="promoImageFile" hidden>
+    </label>
+  `;
+}
+
+document.addEventListener('click', e => {
+  const rm = e.target.closest('[data-remove-promo-img]');
+  if (rm) {
+    promoImagesState.splice(Number(rm.dataset.removePromoImg), 1);
+    renderPromoImages();
+    markDirty();
+  }
+});
+
+document.addEventListener('change', e => {
+  if (e.target.id === 'promoImageFile') {
+    const file = e.target.files && e.target.files[0];
+    if (file) uploadPromoImage(file);
+  }
+});
 
 async function uploadPromoImage(file) {
   const status = document.getElementById('promoImageStatus');
@@ -531,7 +566,8 @@ async function uploadPromoImage(file) {
     });
     const data = await res.json();
     if (!data.ok) throw new Error(data.error || 'فشل الرفع');
-    setPromoImage(data.filename);
+    promoImagesState.push(data.filename);
+    renderPromoImages();
     markDirty();
     status.textContent = 'تم الرفع ✓';
     status.className = 'item-image-status ok';
@@ -542,13 +578,6 @@ async function uploadPromoImage(file) {
   setTimeout(() => { status.textContent = ''; status.className = 'item-image-status'; }, 3000);
 }
 
-document.getElementById('promoImageFile').addEventListener('change', e => {
-  const file = e.target.files && e.target.files[0];
-  if (file) uploadPromoImage(file);
-  e.target.value = '';
-});
-document.getElementById('promoImageRemove').addEventListener('click', () => { setPromoImage(''); markDirty(); });
-
 function collectPromoFromForm() {
   return {
     enabled: document.getElementById('promoEnabled').checked,
@@ -557,7 +586,7 @@ function collectPromoFromForm() {
     subAr: document.getElementById('promoSubAr').value.trim(),
     subEn: document.getElementById('promoSubEn').value.trim(),
     sectionId: document.getElementById('promoSection').value,
-    img: document.getElementById('promoImagePreviewImg').dataset.filename || ''
+    imgs: promoImagesState.slice()
   };
 }
 

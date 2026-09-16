@@ -187,8 +187,16 @@
     overflow: hidden;
     margin-bottom: 28px;
   }
-  .promo-media { width: 100%; aspect-ratio: 3 / 2; overflow: hidden; }
-  .promo-media img { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; display: block; }
+  .promo-media { position: relative; width: 100%; aspect-ratio: 3 / 2; overflow: hidden; }
+  .promo-slide {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; object-position: center 25%; display: block;
+    opacity: 0; transition: opacity .6s ease;
+  }
+  .promo-slide.active { opacity: 1; }
+  .promo-dots { position: absolute; bottom: 9px; inset-inline: 0; display: flex; justify-content: center; gap: 5px; }
+  .promo-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.55); box-shadow: 0 0 2px rgba(0,0,0,.3); }
+  .promo-dot.active { background: #fff; }
   .promo-body { padding: 12px 16px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
   .promo-title { margin: 0; font-family: "Tajawal", sans-serif; font-size: 15px; font-weight: 800; color: var(--color-text); }
   .promo-sub { margin: 0; font-size: 11.5px; color: var(--color-muted); line-height: 1.5; }
@@ -450,9 +458,15 @@ let PROMO = {
   enabled: true,
   titleAr: 'آيس لاتيه', titleEn: 'Iced Latte',
   subAr: 'لاتيه بارد فوق الثلج مع حليب طازج', subEn: 'Cold latte over ice with fresh milk',
-  img: 'cold-coffee.jpg',
+  imgs: ['cold-coffee.jpg'],
   sectionId: 'cold'
 };
+// بتدعم الشكل القديم (img: 'x.jpg') وبتحوّلو لمصفوفة صور
+function promoImages() {
+  if (Array.isArray(PROMO.imgs) && PROMO.imgs.length) return PROMO.imgs;
+  if (PROMO.img) return [PROMO.img];
+  return [];
+}
 
 /* ── حالات فشل تحديث القائمة — القائمة المعروضة (نسخة احتياطية أو آخر نسخة ناجحة)
    بتضل ظاهرة دايمًا، هاد بس شريط تنبيه فوقها لما يفشل جلب آخر تحديث ── */
@@ -650,7 +664,10 @@ function render() {
     <main class="container">
       ${(!needle && PROMO && PROMO.enabled !== false && (PROMO.titleAr || PROMO.titleEn)) ? `
       <div class="promo-banner">
-        <div class="promo-media"><img src="${esc(PROMO.img || 'cold-coffee.jpg')}" alt="${esc(ar ? (PROMO.titleAr || '') : (PROMO.titleEn || ''))}"></div>
+        <div class="promo-media">
+          ${promoImages().map((src, i) => `<img class="promo-slide${i === 0 ? ' active' : ''}" src="${esc(src)}" alt="${esc(ar ? (PROMO.titleAr || '') : (PROMO.titleEn || ''))}">`).join('')}
+          ${promoImages().length > 1 ? `<div class="promo-dots">${promoImages().map((_, i) => `<span class="promo-dot${i === 0 ? ' active' : ''}"></span>`).join('')}</div>` : ''}
+        </div>
         <div class="promo-body">
           <h3 class="promo-title">${esc(ar ? (PROMO.titleAr || '') : (PROMO.titleEn || ''))}</h3>
           ${(ar ? PROMO.subAr : PROMO.subEn) ? `<p class="promo-sub">${esc(ar ? PROMO.subAr : PROMO.subEn)}</p>` : ''}
@@ -672,7 +689,7 @@ function render() {
         <div class="footer-card">
           <div class="footer-card-group">
             <span class="footer-card-title">${ar ? 'زوروا' : 'VISIT'}</span>
-            <p>${ar ? 'حلب — الشهباء القديمة، جانب جامع الرضوان، مول عمار سابقًا' : 'Aleppo — Old Shahba, next to Al-Radwan Mosque (formerly Ammar Mall)'}</p>
+            <p>${ar ? 'حلب — الشهباء، جانب جامع الرضوان، مول عمار سابقًا' : 'Aleppo — Shahba, next to Al-Radwan Mosque (formerly Ammar Mall)'}</p>
           </div>
           <div class="footer-card-group">
             <span class="footer-card-title">${ar ? 'اتصل بنا' : 'CALL US'}</span>
@@ -732,6 +749,26 @@ function render() {
   });
   const retryBtn = document.querySelector('[data-action="retry-fetch"]');
   if (retryBtn) retryBtn.addEventListener('click', () => { state.banner = null; render(); loadMenuData(); });
+  initPromoCarousel();
+}
+
+// تدوير تلقائي لصور البانر الإعلاني لو فيه أكتر من صورة
+let promoCarouselTimer = null;
+function initPromoCarousel() {
+  if (promoCarouselTimer) { clearInterval(promoCarouselTimer); promoCarouselTimer = null; }
+  const media = document.querySelector('.promo-media');
+  if (!media) return;
+  const slides = media.querySelectorAll('.promo-slide');
+  if (slides.length < 2) return;
+  const dots = media.querySelectorAll('.promo-dot');
+  let idx = 0;
+  promoCarouselTimer = setInterval(() => {
+    slides[idx].classList.remove('active');
+    if (dots[idx]) dots[idx].classList.remove('active');
+    idx = (idx + 1) % slides.length;
+    slides[idx].classList.add('active');
+    if (dots[idx]) dots[idx].classList.add('active');
+  }, 3500);
 }
 
 /* ══════════════════════════════════════════════════════════════
