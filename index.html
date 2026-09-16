@@ -449,22 +449,36 @@ function render() {
   const needle = q.trim().toLowerCase();
   const match = it => !needle || it.ar.includes(needle) || it.en.toLowerCase().includes(needle);
 
-  const sections = DATA.map((sec, i) => {
-    const items = sec.items.filter(match).map((it) => {
-      const sizes = (it.sizes || []).map(s => ({ label: ar ? s[0] : s[1], ar: s[0], en: s[1], price: fmt(s[2]), raw: s[2] }));
-      return {
-        title: ar ? it.ar : it.en,
-        sub: ar ? it.en : it.ar,
-        itemAr: it.ar,
-        itemEn: it.en,
-        desc: ar ? (it.dAr || '') : (it.dEn || ''),
-        best: SETTINGS.showBadges && !!it.best,
-        img: it.img || null,
-        sizes,
-        p: it.p || 0,
-        priceText: it.sizes ? '' : fmt(it.p)
-      };
-    });
+  const mapItem = (it, sec) => {
+    const sizes = (it.sizes || []).map(s => ({ label: ar ? s[0] : s[1], ar: s[0], en: s[1], price: fmt(s[2]), raw: s[2] }));
+    return {
+      title: ar ? it.ar : it.en,
+      sub: ar ? it.en : it.ar,
+      itemAr: it.ar,
+      itemEn: it.en,
+      desc: ar ? (it.dAr || '') : (it.dEn || ''),
+      best: SETTINGS.showBadges && !!it.best,
+      img: it.img || sec.img || null,
+      sizes,
+      p: it.p || 0,
+      priceText: it.sizes ? '' : fmt(it.p)
+    };
+  };
+
+  // قائمة "الأكثر طلباً" — بتلمّ تلقائيًا كل صنف مؤشّر عليه best:true بأي قسم، وبتنحط أول القائمة
+  const popularItems = [];
+  DATA.forEach(sec => { sec.items.filter(match).forEach(it => { if (it.best) popularItems.push(mapItem(it, sec)); }); });
+  const popularSection = popularItems.length ? {
+    id: '__popular',
+    num: '★',
+    label: ar ? 'الأكثر طلباً' : 'Most Popular',
+    img: null,
+    count: popularItems.length + ' ' + (ar ? 'صنف' : (popularItems.length === 1 ? 'item' : 'items')),
+    items: popularItems
+  } : null;
+
+  const catSections = DATA.map((sec, i) => {
+    const items = sec.items.filter(match).map(it => mapItem(it, sec));
     return {
       id: sec.id,
       num: String(i + 1).padStart(2, '0'),
@@ -474,6 +488,8 @@ function render() {
       items
     };
   }).filter(s => s.items.length);
+
+  const sections = popularSection ? [popularSection, ...catSections] : catSections;
 
   const dir = ar ? 'rtl' : 'ltr';
   document.documentElement.dir = dir;
