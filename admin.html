@@ -354,6 +354,10 @@
       </div>
     </div>
     <div class="item-row-end">
+      <div style="display:flex;gap:4px">
+        <button type="button" class="icon-btn" data-action="move-item-up" title="نقل لفوق">↑</button>
+        <button type="button" class="icon-btn" data-action="move-item-down" title="نقل لتحت">↓</button>
+      </div>
       <span class="hint">السعر بالليرة السورية</span>
       <button type="button" class="btn btn-danger" data-action="delete-item">حذف الصنف</button>
     </div>
@@ -782,6 +786,20 @@ document.addEventListener('click', e => {
 
   if (action === 'delete-item') {
     if (confirm('حذف هذا الصنف؟')) { btn.closest('.item-block').remove(); markDirty(); }
+    return;
+  }
+
+  if (action === 'move-item-up') {
+    const block = btn.closest('.item-block');
+    const prev = block.previousElementSibling;
+    if (prev) { block.parentNode.insertBefore(block, prev); markDirty(); }
+    return;
+  }
+
+  if (action === 'move-item-down') {
+    const block = btn.closest('.item-block');
+    const next = block.nextElementSibling;
+    if (next) { block.parentNode.insertBefore(next, block); markDirty(); }
     return;
   }
 
