@@ -789,10 +789,10 @@ async function placeOrder(btn, payload, noteInput) {
       showOrderModal(payload);
       if (noteInput) { noteInput.value = ''; noteInput.closest('.item-note-row').hidden = true; }
     } else {
-      showToast(state.lang === 'ar' ? 'صار خطأ، جربي مرة تانية' : 'Something went wrong, try again', true);
+      showToast(state.lang === 'ar' ? 'حدث خطأ، حاول مرة اخرى' : 'Something went wrong, try again', true);
     }
   } catch {
-    showToast(state.lang === 'ar' ? 'ما قدرنا نوصل للسيرفر' : 'Could not reach the server', true);
+    showToast(state.lang === 'ar' ? 'حدث خطأ في السيرفر' : 'Could not reach the server', true);
   }
   setTimeout(() => { btn.disabled = false; btn.textContent = original; }, 1200);
 }

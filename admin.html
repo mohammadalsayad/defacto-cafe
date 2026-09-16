@@ -415,10 +415,10 @@ async function tryLogin(password) {
       app.classList.add('visible');
       loadMenu();
     } else {
-      loginError.textContent = 'كلمة السر غلط، حاولي مرة تانية.';
+      loginError.textContent = 'كلمة السر خاطئة';
     }
   } catch (e) {
-    loginError.textContent = 'ما قدرنا نتواصل مع السيرفر. تأكدي إنو server.js شغّال.';
+    loginError.textContent = 'حدث خطأ في السيرفر';
   }
 }
 
