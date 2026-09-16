@@ -8,7 +8,7 @@
         "ar": "إسبريسو",
         "en": "Espresso",
         "dAr": "جرعة قهوة مركزة، تحميص غامق ورغوة كريمية.",
-        "dEn": "A concentrated shot, dark roast with a rich crema.",
+        "dEn": "One or Double Shot of Espresso",
         "best": true,
         "sizes": [
           [
@@ -24,12 +24,44 @@
         ]
       },
       {
-        "ar": "أمريكانو",
-        "en": "Americano",
-        "dAr": "إسبريسو ممدود بالمي الساخن، طعم خفيف ومتوازن.",
-        "dEn": "Espresso lengthened with hot water, light and balanced.",
+        "ar": "اسبريسو دوبيو",
+        "en": "Espresso Doppio",
+        "dAr": "جرعتين إسبريسو مضاعفتين، بدون إضافات.",
+        "dEn": "Two shots of espresso, straight.",
         "best": false,
         "p": 15000
+      },
+      {
+        "ar": "اميريكانو",
+        "en": "Americano",
+        "dAr": "",
+        "dEn": "",
+        "best": false,
+        "p": 0
+      },
+      {
+        "ar": "اسبريسو ماكياتو",
+        "en": "Espresso Macchiato",
+        "dAr": "",
+        "dEn": "",
+        "best": false,
+        "p": 0
+      },
+      {
+        "ar": "لاتيه",
+        "en": "Latte",
+        "dAr": "قهوة ناعمة بحليب مبخّر وفن لاتيه.",
+        "dEn": "Smooth coffee with steamed milk and latte art.",
+        "best": false,
+        "p": 20000
+      },
+      {
+        "ar": "فلات وايت",
+        "en": "Flat White",
+        "dAr": "",
+        "dEn": "",
+        "best": false,
+        "p": 0
       },
       {
         "ar": "كابتشينو",
@@ -51,12 +83,12 @@
         ]
       },
       {
-        "ar": "لاتيه",
-        "en": "Latte",
-        "dAr": "قهوة ناعمة بحليب مبخّر وفن لاتيه.",
-        "dEn": "Smooth coffee with steamed milk and latte art.",
+        "ar": "لاتيه اسبانية",
+        "en": "Spanish Latte",
+        "dAr": "",
+        "dEn": "",
         "best": false,
-        "p": 20000
+        "p": 0
       },
       {
         "ar": "موكا",
@@ -65,6 +97,14 @@
         "dEn": "Latte with a rich chocolate twist.",
         "best": false,
         "p": 24000
+      },
+      {
+        "ar": "شوكولا ساخنة",
+        "en": "Hot Chocolate",
+        "dAr": "",
+        "dEn": "",
+        "best": false,
+        "p": 0
       },
       {
         "ar": "قهوة تركية",
@@ -79,8 +119,8 @@
   },
   {
     "id": "cold",
-    "ar": "قهوة باردة",
-    "en": "Cold Coffee",
+    "ar": "مشروبات باردة",
+    "en": "Cold Drinks",
     "items": [
       {
         "ar": "آيس أمريكانو",
@@ -91,8 +131,8 @@
         "p": 18000
       },
       {
-        "ar": "آيس لاتيه",
-        "en": "Iced Latte",
+        "ar": "آيس لاتيه اسبانية",
+        "en": "Iced Spanish Latte",
         "dAr": "لاتيه بارد فوق الثلج مع حليب طازج.",
         "dEn": "Cold latte over ice with fresh milk.",
         "best": true,
@@ -110,10 +150,10 @@
         ]
       },
       {
-        "ar": "كولد برو",
-        "en": "Cold Brew",
-        "dAr": "قهوة منقوعة ببرودة لساعات، نعومة بدون حموضة.",
-        "dEn": "Slow cold-steeped coffee, smooth and low-acid.",
+        "ar": "ماتشا بالفريز",
+        "en": "Strawberry Matcha",
+        "dAr": "",
+        "dEn": "",
         "best": false,
         "p": 26000
       },
@@ -126,12 +166,44 @@
         "p": 27000
       },
       {
-        "ar": "أفوغاتو",
-        "en": "Affogato",
-        "dAr": "سكوب آيسكريم فانيلا مغروق بإسبريسو ساخن.",
-        "dEn": "Vanilla ice cream drowned in a hot espresso shot.",
+        "ar": "سن سيت ماتشا",
+        "en": "Sunset Matcha",
+        "dAr": "",
+        "dEn": "",
         "best": false,
         "p": 25000
+      },
+      {
+        "ar": "دوبل شوت فانيلا",
+        "en": "Double Shot Vanilla",
+        "dAr": "",
+        "dEn": "",
+        "best": false,
+        "p": 0
+      },
+      {
+        "ar": "قهوة مثلجة بالكراميل",
+        "en": "Iced coffee Caramel",
+        "dAr": "",
+        "dEn": "",
+        "best": false,
+        "p": 0
+      },
+      {
+        "ar": "شاي مثلج",
+        "en": "iced Tea",
+        "dAr": "",
+        "dEn": "",
+        "best": false,
+        "p": 0
+      },
+      {
+        "ar": "ماتشا بالتوت الازرق",
+        "en": "BlueBerry Matcha",
+        "dAr": "",
+        "dEn": "",
+        "best": false,
+        "p": 0
       }
     ],
     "img": "cold-coffee.jpg"
