@@ -150,28 +150,12 @@
         ]
       },
       {
-        "ar": "ماتشا بالفريز",
-        "en": "Strawberry Matcha",
-        "dAr": "",
-        "dEn": "",
-        "best": false,
-        "p": 26000
-      },
-      {
         "ar": "آيس موكا",
         "en": "Iced Mocha",
         "dAr": "موكا باردة بلمسة شوكولا وكريما.",
         "dEn": "Iced mocha with chocolate and cream.",
         "best": false,
         "p": 27000
-      },
-      {
-        "ar": "سن سيت ماتشا",
-        "en": "Sunset Matcha",
-        "dAr": "",
-        "dEn": "",
-        "best": false,
-        "p": 25000
       },
       {
         "ar": "دوبل شوت فانيلا",
@@ -198,6 +182,22 @@
         "p": 0
       },
       {
+        "ar": "ماتشا بالفريز",
+        "en": "Strawberry Matcha",
+        "dAr": "",
+        "dEn": "",
+        "best": false,
+        "p": 26000
+      },
+      {
+        "ar": "سن سيت ماتشا",
+        "en": "Sunset Matcha",
+        "dAr": "",
+        "dEn": "",
+        "best": false,
+        "p": 25000
+      },
+      {
         "ar": "ماتشا بالتوت الازرق",
         "en": "BlueBerry Matcha",
         "dAr": "",
@@ -210,8 +210,8 @@
   },
   {
     "id": "frappe",
-    "ar": "مشروبات باردة",
-    "en": "Frappé & Smoothies",
+    "ar": "الفرابيه والميلك شيك",
+    "en": "Frappé & MilkShakes",
     "items": [
       {
         "ar": "فرابيه كراميل",
@@ -222,32 +222,32 @@
         "p": 28000
       },
       {
-        "ar": "فرابيه نوتيلا",
-        "en": "Nutella Frappé",
+        "ar": "فرابيه موكا",
+        "en": "Mocha Frappé",
         "dAr": "فرابيه بطعم النوتيلا والبندق.",
         "dEn": "Frappé with Nutella and hazelnut flavor.",
         "best": false,
         "p": 32000
       },
       {
-        "ar": "سموذي فراولة",
-        "en": "Strawberry Smoothie",
+        "ar": "ميلك شيك لوتس",
+        "en": "Lotus Milkshake",
         "dAr": "سموذي فراولة طازج وكريمي.",
         "dEn": "Fresh, creamy strawberry smoothie.",
         "best": false,
         "p": 26000
       },
       {
-        "ar": "سموذي مانجا",
-        "en": "Mango Smoothie",
+        "ar": "ميلك شيك فستق",
+        "en": "Pistachio Milkshake",
         "dAr": "سموذي مانجا استوائي منعش.",
         "dEn": "Refreshing tropical mango smoothie.",
         "best": false,
         "p": 26000
       },
       {
-        "ar": "ميلك شيك فانيلا",
-        "en": "Vanilla Milkshake",
+        "ar": "ميلك شيك فريز",
+        "en": "Strawberry Milkshake",
         "dAr": "ميلك شيك فانيلا كلاسيكي وكريمي.",
         "dEn": "Classic, creamy vanilla milkshake.",
         "best": false,
@@ -258,40 +258,64 @@
   },
   {
     "id": "juice",
-    "ar": "عصائر طازجة",
-    "en": "Fresh Juices",
+    "ar": "السموذي و الموهيتو",
+    "en": "Smoothies & Mojitos",
     "items": [
       {
-        "ar": "برتقال",
-        "en": "Orange",
+        "ar": "سموذي مانغو",
+        "en": "Mango Smoothie",
         "dAr": "عصير برتقال طازج معصور بالطلب.",
         "dEn": "Fresh orange juice, squeezed to order.",
         "best": false,
         "p": 20000
       },
       {
-        "ar": "ليمون بالنعنع",
-        "en": "Lemon Mint",
+        "ar": "سموذي فريز",
+        "en": "Strawberry Smoothie",
         "dAr": "ليمون بالنعنع، منعش ومنعّم.",
         "dEn": "Lemon and mint, cool and refreshing.",
         "best": true,
         "p": 18000
       },
       {
-        "ar": "كوكتيل فواكه",
-        "en": "Fruit Cocktail",
+        "ar": "سموذي دراق",
+        "en": "Peach Smoothie",
         "dAr": "مزيج فواكه موسمية طازجة.",
         "dEn": "A blend of fresh seasonal fruits.",
         "best": false,
         "p": 30000
       },
       {
-        "ar": "رمان",
-        "en": "Pomegranate",
+        "ar": "موهيتو كلاسيكي",
+        "en": "Classic Mojito",
         "dAr": "عصير رمان طبيعي ١٠٠٪.",
         "dEn": "100% natural pomegranate juice.",
         "best": false,
         "p": 28000
+      },
+      {
+        "ar": "موهيتو فريز",
+        "en": "Strawberry Mojito",
+        "dAr": "",
+        "dEn": "",
+        "best": false,
+        "p": 0
+      },
+      {
+        "ar": "موهيتو توت ازرق",
+        "en": "Blueberry Mojito",
+        "dAr": "",
+        "dEn": "",
+        "best": false,
+        "p": 0
+      },
+      {
+        "ar": "ايس بلو موهيتو",
+        "en": "Iced blue Mojito",
+        "dAr": "",
+        "dEn": "",
+        "best": false,
+        "p": 0
       }
     ],
     "img": "juice.jpg"
