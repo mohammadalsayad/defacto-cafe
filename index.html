@@ -381,6 +381,51 @@
 <body>
 
 <div id="app"></div>
+
+<!-- الفوتر ثابت بره #app عمداً — ما بينكتب من جديد مع كل render()، حتى خريطة
+     غوغل (iframe) ما تنعاد تحميلها مع كل ضغطة (كانت بتسبب قفزة عالموبايل).
+     النصوص العربي/إنجليزي جوّاه بتتحدّث بدالة updateFooterLang() بس. -->
+<footer class="footer" id="siteFooter">
+  <div class="container footer-top">
+    <img class="footer-logo-img" src="logo.png" alt="DeFacto Cafe">
+    <p class="footer-tagline" id="footerTagline"></p>
+  </div>
+  <div class="footer-grid">
+    <div class="footer-card">
+      <div class="footer-card-group">
+        <span class="footer-card-title" id="footerVisitLabel"></span>
+        <p id="footerVisitText"></p>
+      </div>
+      <div class="footer-card-group">
+        <span class="footer-card-title" id="footerCallLabel"></span>
+        <p dir="ltr" id="footerCallP"><a href="tel:+963940690070" style="color:inherit;text-decoration:none">+963 940 690 070</a></p>
+        <div class="footer-card-social-row">
+          <a class="footer-card-social" href="#" aria-label="Instagram" target="_blank" rel="noopener">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="0.7" fill="currentColor" stroke="none"/></svg>
+          </a>
+          <a class="footer-card-social" href="https://www.facebook.com/share/19Ug5ia1hL/?mibextid=wwXIfr" aria-label="Facebook" target="_blank" rel="noopener">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M22 12a10 10 0 1 0-11.5 9.9v-7H7.9V12h2.6V9.8c0-2.6 1.5-4 3.9-4 1.1 0 2.3.2 2.3.2v2.5h-1.3c-1.3 0-1.7.8-1.7 1.6V12h2.9l-.5 2.9h-2.4v7A10 10 0 0 0 22 12z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-card">
+      <span class="footer-card-title" id="footerFindLabel"></span>
+      <div class="footer-map">
+        <iframe src="https://www.google.com/maps?q=6479+RF7+Defacto,+Aleppo,+Syria&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="DeFacto Cafe location"></iframe>
+        <a class="footer-map-marker" href="https://maps.app.goo.gl/Looii8WxC8hYmzKD8" target="_blank" rel="noopener" id="footerMapMarker">
+          <img src="logo.png" alt="">
+        </a>
+      </div>
+      <a class="footer-map-link" href="https://maps.app.goo.gl/Looii8WxC8hYmzKD8" target="_blank" rel="noopener" id="footerMapLink"></a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <a class="footer-credit" href="https://www.paradox-agency.com" target="_blank" rel="noopener">
+      <img src="paradox-logo.png" alt="Paradox" class="footer-credit-logo">
+    </a>
+  </div>
+</footer>
 <div id="toast"></div>
 
 <div id="orderModal" class="order-modal-backdrop">
@@ -526,6 +571,21 @@ const state = {
   table: new URLSearchParams(location.search).get('table') || '',
   banner: null // مفتاح من ERROR_STATES لو فشل تحديث القائمة، وإلا null
 };
+
+// بتحدّث نصوص الفوتر العربي/إنجليزي بس (الفوتر نفسو ثابت وما بينعاد بناؤه، حتى ما تنعاد
+// تحميل خريطة غوغل جواه مع كل ضغطة على أي زر بالصفحة)
+function updateFooterLang(ar) {
+  document.getElementById('footerTagline').textContent = ar ? 'من قلبنا لفنجانكم' : 'From our heart to your cup';
+  document.getElementById('footerVisitLabel').textContent = ar ? 'زوروا' : 'VISIT';
+  document.getElementById('footerVisitText').textContent = ar
+    ? 'حلب — الشهباء، جانب جامع الرضوان، مول عمار سابقًا'
+    : 'Aleppo — Shahba, next to Al-Radwan Mosque (formerly Ammar Mall)';
+  document.getElementById('footerCallLabel').textContent = ar ? 'اتصل بنا' : 'CALL US';
+  document.getElementById('footerCallP').style.textAlign = ar ? 'right' : 'left';
+  document.getElementById('footerFindLabel').textContent = ar ? 'موقعنا' : 'FIND US';
+  document.getElementById('footerMapMarker').setAttribute('aria-label', ar ? 'فتح الموقع بخرائط جوجل' : 'Open location in Google Maps');
+  document.getElementById('footerMapLink').textContent = ar ? 'فتح بخرائط جوجل ↗' : 'Open in Google Maps ↗';
+}
 
 function render() {
   const { lang, q, open } = state;
@@ -701,53 +761,12 @@ function render() {
         ? `<div class="menu-grid">${sectionsHtml}</div>`
         : `<div class="empty-state">${esc(emptyLabel)}</div>`}
     </main>
-
-    <footer class="footer">
-      <div class="container footer-top">
-        <img class="footer-logo-img" src="logo.png" alt="DeFacto Cafe">
-        <p class="footer-tagline">${ar ? 'من قلبنا لفنجانكم' : 'From our heart to your cup'}</p>
-      </div>
-      <div class="footer-grid">
-        <div class="footer-card">
-          <div class="footer-card-group">
-            <span class="footer-card-title">${ar ? 'زوروا' : 'VISIT'}</span>
-            <p>${ar ? 'حلب — الشهباء، جانب جامع الرضوان، مول عمار سابقًا' : 'Aleppo — Shahba, next to Al-Radwan Mosque (formerly Ammar Mall)'}</p>
-          </div>
-          <div class="footer-card-group">
-            <span class="footer-card-title">${ar ? 'اتصل بنا' : 'CALL US'}</span>
-            <p dir="ltr" style="text-align:${ar ? 'right' : 'left'}"><a href="tel:+963940690070" style="color:inherit;text-decoration:none">+963 940 690 070</a></p>
-            <div class="footer-card-social-row">
-              <a class="footer-card-social" href="#" aria-label="Instagram" target="_blank" rel="noopener">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="0.7" fill="currentColor" stroke="none"/></svg>
-              </a>
-              <a class="footer-card-social" href="https://www.facebook.com/share/19Ug5ia1hL/?mibextid=wwXIfr" aria-label="Facebook" target="_blank" rel="noopener">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M22 12a10 10 0 1 0-11.5 9.9v-7H7.9V12h2.6V9.8c0-2.6 1.5-4 3.9-4 1.1 0 2.3.2 2.3.2v2.5h-1.3c-1.3 0-1.7.8-1.7 1.6V12h2.9l-.5 2.9h-2.4v7A10 10 0 0 0 22 12z"/></svg>
-              </a>
-            </div>
-          </div>
-        </div>
-        <div class="footer-card">
-          <span class="footer-card-title">${ar ? 'موقعنا' : 'FIND US'}</span>
-          <div class="footer-map">
-            <iframe src="https://www.google.com/maps?q=6479+RF7+Defacto,+Aleppo,+Syria&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="DeFacto Cafe location"></iframe>
-            <a class="footer-map-marker" href="https://maps.app.goo.gl/Looii8WxC8hYmzKD8" target="_blank" rel="noopener" aria-label="${ar ? 'فتح الموقع بخرائط جوجل' : 'Open location in Google Maps'}">
-              <img src="logo.png" alt="">
-            </a>
-          </div>
-          <a class="footer-map-link" href="https://maps.app.goo.gl/Looii8WxC8hYmzKD8" target="_blank" rel="noopener">${ar ? 'فتح بخرائط جوجل ↗' : 'Open in Google Maps ↗'}</a>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <a class="footer-credit" href="https://www.paradox-agency.com" target="_blank" rel="noopener">
-          <img src="paradox-logo.png" alt="Paradox" class="footer-credit-logo">
-        </a>
-      </div>
-    </footer>
   `;
 
   // ربط الأحداث بعد كل عملية رسم
   document.getElementById('langToggle').addEventListener('click', () => {
     state.lang = state.lang === 'ar' ? 'en' : 'ar';
+    updateFooterLang(state.lang === 'ar');
     render();
   });
   const input = document.getElementById('searchInput');
@@ -883,6 +902,7 @@ function restoreFocus(input) {
   }
 }
 
+updateFooterLang(state.lang === 'ar');
 render();
 
 /* ══════════════════════════════════════════════════════════════
