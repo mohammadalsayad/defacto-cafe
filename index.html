@@ -910,6 +910,40 @@ updateFooterLang(state.lang === 'ar');
 render();
 
 /* ══════════════════════════════════════════════════════════════
+   TEMP DEBUG — بيكشف قفزة تمرير غير متوقعة وبيعرضها بشريط تحت،
+   حتى نعرف بالضبط شو بيصير عند القفزة. رح ينشال أول ما نلاقي السبب.
+   ══════════════════════════════════════════════════════════════ */
+(function () {
+  let lastClickInfo = 'no click yet';
+  document.addEventListener('click', e => {
+    const t = e.target;
+    lastClickInfo = (t.tagName + '.' + (t.className || '')).toString().slice(0, 60)
+      + ' | closest button: ' + (t.closest('button') ? (t.closest('button').className || '(no class)') : 'none');
+  }, true);
+  let lastY = window.scrollY;
+  function showBox(msg) {
+    let box = document.getElementById('debugJumpBox');
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'debugJumpBox';
+      box.style.cssText = 'position:fixed;bottom:0;inset-inline:0;max-height:55vh;overflow:auto;background:#c0392b;color:#fff;font-size:12px;padding:10px;z-index:999999;direction:ltr;text-align:left;white-space:pre-wrap;font-family:monospace;';
+      document.body.appendChild(box);
+    }
+    box.textContent = msg;
+  }
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    if (Math.abs(y - lastY) > 250) {
+      showBox('JUMP DETECTED\nfrom scrollY: ' + lastY + '  to: ' + y
+        + '\nlast click target: ' + lastClickInfo
+        + '\ndocument.activeElement: ' + (document.activeElement ? document.activeElement.tagName + '.' + (document.activeElement.className || '') : 'none')
+        + '\ntime: ' + new Date().toISOString());
+    }
+    lastY = y;
+  });
+})();
+
+/* ══════════════════════════════════════════════════════════════
    جلب أحدث نسخة من القائمة (menu-data.json) — القائمة المعروضة
    (النسخة الاحتياطية أو آخر نسخة ناجحة) بتضل ظاهرة وقابلة للطلب
    دايمًا؛ لو فشل التحديث بيظهر بس شريط تنبيه فوقها بدون ما يخفيها.
