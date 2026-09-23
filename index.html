@@ -633,7 +633,7 @@ function render() {
 
     return `
       <div class="section-card">
-        <button class="section-head" data-toggle="${s.id}">
+        <button type="button" class="section-head" data-toggle="${s.id}">
           <span class="section-num">${s.num}</span>
           <span class="section-label">${esc(s.label)}</span>
           <span class="section-rule"></span>
@@ -654,7 +654,7 @@ function render() {
           </div>
           <div class="header-actions">
             <img class="mini-badge" src="iloveme-logo.png" alt="">
-            <button class="lang-btn" id="langToggle">${langBtn}</button>
+            <button type="button" class="lang-btn" id="langToggle">${langBtn}</button>
           </div>
         </div>
         <p class="tagline">${esc(tagline)}</p>
